@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>PW Discount Access | Yugal (PW Ambassador)</title>
-  <!-- Google Fonts & Simple CSS Reset -->
+  <!-- Google Fonts & Select2 CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
     * {
       margin: 0;
@@ -21,9 +22,8 @@
       color: #1e293b;
     }
 
-    /* Main Card Container */
     .main-card {
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
       background: white;
       border-radius: 2rem;
@@ -32,7 +32,6 @@
       transition: all 0.3s ease;
     }
 
-    /* Hero Section */
     .hero {
       background: linear-gradient(105deg, #0f172a 0%, #1e293b 100%);
       padding: 2rem 2rem 1.8rem;
@@ -70,12 +69,10 @@
       font-size: 0.95rem;
     }
 
-    /* Form content */
     .form-content {
       padding: 2rem;
     }
 
-    /* Step Progress */
     .step-progress {
       display: flex;
       justify-content: space-between;
@@ -116,7 +113,6 @@
       color: white;
     }
 
-    /* Form styling */
     .form-step {
       display: none;
       animation: fadeIn 0.3s ease;
@@ -160,7 +156,6 @@
       box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
     }
 
-    /* Radio group for mode selection */
     .radio-group {
       display: flex;
       gap: 1rem;
@@ -198,7 +193,6 @@
       color: #64748b;
     }
 
-    /* Buttons */
     .btn-group {
       display: flex;
       justify-content: space-between;
@@ -236,7 +230,6 @@
       background: #e2e8f0;
     }
 
-    /* Toast / snackbar */
     .toast-msg {
       position: fixed;
       bottom: 2rem;
@@ -254,23 +247,6 @@
       white-space: nowrap;
     }
 
-    .coupon-reveal {
-      background: #fef9c3;
-      border-left: 5px solid #facc15;
-      padding: 1.2rem;
-      border-radius: 1rem;
-      margin: 1.5rem 0;
-      text-align: center;
-    }
-
-    .coupon-code {
-      font-family: monospace;
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #0f172a;
-    }
-
     footer {
       text-align: center;
       font-size: 0.7rem;
@@ -279,10 +255,32 @@
       color: #94a3b8;
     }
 
+    /* Select2 Overrides */
+    .select2-container--default .select2-selection--single {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1rem;
+      height: 52px;
+      padding: 0.5rem;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 40px;
+      font-size: 0.95rem;
+    }
+
+    .select2-dropdown {
+      border-radius: 1rem;
+      border-color: #e2e8f0;
+    }
+
     @media (max-width: 480px) {
       .form-content { padding: 1.5rem; }
       .hero h1 { font-size: 1.4rem; }
       .radio-group { flex-direction: column; }
+    }
+
+    .hidden-field {
+      display: none;
     }
   </style>
 </head>
@@ -296,7 +294,6 @@
   </div>
 
   <div class="form-content">
-    <!-- Step progress -->
     <div class="step-progress">
       <div class="step active" id="step1Indicator"><span>1</span> Details</div>
       <div class="step" id="step2Indicator"><span>2</span> Preference</div>
@@ -323,7 +320,7 @@
         </div>
       </div>
 
-      <!-- STEP 2 - Mode Selection (Online / Offline) -->
+      <!-- STEP 2 - Mode Selection -->
       <div class="form-step" id="step2">
         <div class="input-group">
           <label>Select Batch Mode *</label>
@@ -341,7 +338,6 @@
           </div>
         </div>
 
-        <!-- Dynamic Fields Container -->
         <div id="dynamicFields"></div>
 
         <div class="btn-group">
@@ -364,22 +360,22 @@
 </div>
 <div id="toastMsg" class="toast-msg"></div>
 
+<!-- jQuery & Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-  // ---------- Configuration ----------
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzrp71aPEiKf0L4LaTaOg0-byg3bKX8sDjLxSo3ZeDgf_40n3N8rdxtE1fVC8MdmzHA/exec';  // <-- REPLACE WITH YOUR DEPLOYED WEB APP URL
-
-  // UI elements
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzrp71aPEiKf0L4LaTaOg0-byg3bKX8sDjLxSo3ZeDgf_40n3N8rdxtE1fVC8MdmzHA/exec';
+  
   let selectedMode = null;
-
-  // Step navigation
   let currentStep = 1;
+  let centerSelect2 = null;
 
   function showStep(step) {
     document.querySelectorAll('.form-step').forEach((el, idx) => {
       el.classList.remove('active-step');
       if(idx+1 === step) el.classList.add('active-step');
     });
-    // update indicators
     for(let i=1; i<=3; i++) {
       const ind = document.getElementById(`step${i}Indicator`);
       if(i <= step) ind.classList.add('active');
@@ -420,32 +416,114 @@
     } else if (mode === 'offline') {
       container.innerHTML = `
         <div class="input-group">
-          <label>Select Offline Center Preference *</label>
-          <select id="offlineCenter" required>
-            <option value="">Choose Center</option>
-            <option>Vidyapeeth - Delhi (North)</option>
-            <option>Vidyapeeth - Kota</option>
-            <option>Vidyapeeth - Lucknow</option>
-            <option>Vidyapeeth - Patna</option>
-            <option>Power Batch - Mumbai</option>
-            <option>Power Batch - Bengaluru</option>
-            <option>Other / Not Listed</option>
+          <label>Preferred Batch Type *</label>
+          <select id="batchType" required>
+            <option value="">Select Batch Type</option>
+            <option value="vidyapeeth">Vidyapeeth (Regular)</option>
+            <option value="powerbatch">Power Batch (Crash Course)</option>
           </select>
         </div>
-        <div class="input-group">
-          <label>Preferred Batch Type</label>
-          <select id="batchType">
-            <option>Vidyapeeth (Regular)</option>
-            <option>Power Batch (Crash Course)</option>
+        
+        <div class="input-group" id="centerGroup">
+          <label>Select Offline Vidyapeeth Center *</label>
+          <select id="offlineCenter" style="width: 100%;">
+            <option value="">Loading centers...</option>
           </select>
         </div>
       `;
-    } else {
-      container.innerHTML = '';
+      
+      // Initialize batch type change listener
+      const batchTypeSelect = document.getElementById('batchType');
+      if(batchTypeSelect) {
+        batchTypeSelect.addEventListener('change', function() {
+          const centerGroup = document.getElementById('centerGroup');
+          if(this.value === 'powerbatch') {
+            centerGroup.style.display = 'none';
+            // Remove required attribute when hidden
+            const centerSelect = document.getElementById('offlineCenter');
+            if(centerSelect) centerSelect.removeAttribute('required');
+          } else {
+            centerGroup.style.display = 'block';
+            const centerSelect = document.getElementById('offlineCenter');
+            if(centerSelect) centerSelect.setAttribute('required', 'required');
+          }
+        });
+      }
+      
+      // Initialize Select2 with all centers
+      setTimeout(() => {
+        if(jQuery('#offlineCenter').length && !centerSelect2) {
+          const centers = [
+            "Agartala Vidyapeeth", "Agra Vidyapeeth", "Ahmedabad - Chandkheda Vidyapeeth",
+            "Ahmedabad - Maninagar Vidyapeeth", "Ahmedabad - Nikol Vidyapeeth", "Ahmedabad - Satellite Vidyapeeth",
+            "Ajmer - Civil Lines Vidyapeeth", "Akola Vidyapeeth", "Aligarh Vidyapeeth",
+            "Alipurduar - Samuktala Road Vidyapeeth", "Alwar Vidyapeeth", "Ambala Vidyapeeth",
+            "Anantnag Vidyapeeth", "Bardhaman Vidyapeeth", "Bareilly Vidyapeeth",
+            "Bengaluru - Banaswadi Vidyapeeth", "Bengaluru - HSR Layout Vidyapeeth", "Bengaluru - JP Nagar Vidyapeeth",
+            "Bengaluru - Rajajinagar Vidyapeeth", "Bengaluru - RR Nagar Vidyapeeth", "Bengaluru - Whitefield Vidyapeeth",
+            "Bengaluru - Yelahanka Vidyapeeth", "Bhagalpur Vidyapeeth", "Bharuch Vidyapeeth",
+            "Bhilai Vidyapeeth", "Bhopal Vidyapeeth", "Bhubaneswar - Chandrasekharpur Vidyapeeth",
+            "Bhubaneswar Vidyapeeth", "Bilaspur Vidyapeeth", "Bokaro (New) Vidyapeeth",
+            "Chandigarh Vidyapeeth", "Chennai - Adyar Gandhi Nagar Vidyapeeth", "Chennai - Annanagar Vidyapeeth",
+            "Chennai - Ashok Nagar Vidyapeeth", "Chennai - Medavakkam Vidyapeeth", "Chhatrapati Sambhajinagar Vidyapeeth",
+            "Coimbatore Vidyapeeth", "Dehradun - Ballupur", "Dehradun - Rajpur Rd Vidyapeeth",
+            "Delhi - Dwarka Vidyapeeth", "Delhi - Janakpuri Vidyapeeth", "Delhi - Jasola Vidyapeeth",
+            "Delhi - Kalusarai Vidyapeeth", "Delhi - NSP Vidyapeeth", "Delhi - Preet Vihar Vidyapeeth",
+            "Delhi - Punjabi Bagh Vidyapeeth", "Delhi - Yamuna Vihar Vidyapeeth", "Dhanbad Vidyapeeth",
+            "Durgapur Vidyapeeth", "Faridabad Vidyapeeth", "Gandhinagar Vidyapeeth",
+            "Ghaziabad Vidyapeeth", "Goa - Madgaon Vidyapeeth", "Goa - Panjim Vidyapeeth",
+            "Gorakhpur - Medical Road Vidyapeeth", "Gorakhpur Vidyapeeth", "Greater Noida Vidyapeeth",
+            "Gurugram - Sector 47 Vidyapeeth", "Gurugram Vidyapeeth", "Guwahati - Adabari Vidyapeeth",
+            "Guwahati Vidyapeeth", "Gwalior Vidyapeeth", "Haridwar - Ranipur Vidyapeeth",
+            "Hisar Vidyapeeth", "Howrah Vidyapeeth", "Hyderabad - AS Rao Nagar Vidyapeeth",
+            "Hyderabad - Chanda Nagar Vidyapeeth", "Hyderabad - Habsiguda Vidyapeeth", "Hyderabad - Kothapet Vidyapeeth",
+            "Hyderabad - Kukatpally Vidyapeeth", "Hyderabad - Madhapur Vidyapeeth", "Hyderabad - Manikonda Vidyapeeth",
+            "Hyderabad - Nallagandla Vidyapeeth", "Hyderabad - Shaikpet Vidyapeeth", "Hyderabad - Suchitra Vidyapeeth",
+            "Hyderabad - Warangal Vidyapeeth", "Imphal - Babupara Vidyapeeth", "Indore - Bhawarkuan Vidyapeeth",
+            "Indore - MG Road Vidyapeeth", "Indore - Vijay Nagar Vidyapeeth", "Itanagar - F Sector Vidyapeeth",
+            "Jabalpur Vidyapeeth", "Jaipur - Gopalpura Vidyapeeth", "Jaipur - Pratap Nagar Vidyapeeth",
+            "Jaipur - RS Circle Vidyapeeth", "Jaipur - Tonk Road Vidyapeeth", "Jaipur - Vaishali Nagar Vidyapeeth",
+            "Jalandhar Vidyapeeth", "Jammu - Akhnoor Road Vidyapeeth", "Jammu - Pacific Tower Vidyapeeth",
+            "Jamshedpur Vidyapeeth", "Jodhpur - Akhaliya Vidyapeeth", "Jodhpur - Paota Vidyapeeth",
+            "Jodhpur - Sardarpura Vidyapeeth", "Kanpur - JSTower Vidyapeeth", "Kanpur - Kidwai Nagar Vidyapeeth",
+            "Kanpur - SomBizness Vidyapeeth", "Kharagpur Vidyapeeth", "Kolkata - Barrackpore Vidyapeeth",
+            "Kolkata - Baruipur Vidyapeeth", "Kolkata - Behala Vidyapeeth", "Kolkata - Gariahat Vidyapeeth",
+            "Kolkata - Hatibagan Vidyapeeth", "Kolkata - NewTown Vidyapeeth", "Kota Vidyapeeth",
+            "Latur Vidyapeeth", "Lucknow - Alambagh Vidyapeeth", "Lucknow - Gomtinagar Vidyapeeth",
+            "Lucknow - Hazratganj Vidyapeeth", "Lucknow - Kapoorthala Vidyapeeth", "Lucknow - Vrindavan Vidyapeeth",
+            "Ludhiana Vidyapeeth", "Malda Vidyapeeth", "Meerut Vidyapeeth", "Moradabad Vidyapeeth",
+            "Motihari Vidyapeeth", "Mumbai - Andheri Vidyapeeth", "Mumbai - Borivali Vidyapeeth",
+            "Mumbai - Chembur Vidyapeeth", "Mumbai - Dadar Vidyapeeth", "Mumbai - Ghatkopar Vidyapeeth",
+            "Mumbai - Kalyan Vidyapeeth", "Mumbai - Kharghar Vidyapeeth", "Mumbai - Nerul Vidyapeeth",
+            "Mumbai - Panvel Vidyapeeth", "Mumbai - Thane Vidyapeeth", "Mumbai - Virar Vidyapeeth",
+            "Mysore Vidyapeeth", "Nagpur Vidyapeeth", "Nanded Vidyapeeth", "Nashik Vidyapeeth",
+            "Noida - Block C Vidyapeeth", "Panchkula Vidyapeeth", "Panipat Vidyapeeth",
+            "Patna - Ashiana Digha Vidyapeeth", "Patna - Boring Road Vidyapeeth", "Patna - Exhibition Rd Vidyapeeth",
+            "Patna - Iskcon Vidyapeeth", "Patna - Kankarbagh Vidyapeeth", "Prayagraj - Civil Lines Vidyapeeth",
+            "Prayagraj - Naini Vidyapeeth", "Pune - Baner Vidyapeeth", "Pune - FC Road Vidyapeeth",
+            "Pune - Hadapsar Vidyapeeth", "Pune - NalStop Vidyapeeth", "Pune - Pimpri Vidyapeeth",
+            "Pune - Viman Nagar Vidyapeeth", "Raipur Vidyapeeth", "Rajkot Vidyapeeth",
+            "Ranchi - Harmu Vidyapeeth", "Ranchi - Lalpur Vidyapeeth", "Rohtak Vidyapeeth",
+            "Sikar Vidyapeeth", "Siliguri Vidyapeeth", "Sriganganagar - Meera Marg Vidyapeeth",
+            "Srinagar - Baghat Vidyapeeth", "Srinagar - Rajbagh Vidyapeeth", "Surat - Adajan Vidyapeeth",
+            "Surat - Katargram Vidyapeeth", "Surat - Vesu Vidyapeeth", "Udaipur Vidyapeeth",
+            "Vadodara - Alkapuri Vidyapeeth", "Vadodara - Manjalpur Vidyapeeth", "Vadodara - Sama Savli Vidyapeeth",
+            "Varanasi - BHU Vidyapeeth", "Varanasi - Bhojuveer Vidyapeeth", "Vijayawada Vidyapeeth",
+            "Vizag Vidyapeeth", "Other / Not Listed"
+          ];
+          
+          jQuery('#offlineCenter').select2({
+            placeholder: "🔍 Search for your city or center...",
+            allowClear: true,
+            width: '100%',
+            data: centers.map(c => ({ id: c, text: c }))
+          });
+          centerSelect2 = true;
+        }
+      }, 100);
     }
   }
 
-  // Step 1 → Step 2 validation
   document.getElementById('nextStep1').addEventListener('click', () => {
     const name = document.getElementById('fullName').value.trim();
     const email = document.getElementById('email').value.trim();
@@ -473,7 +551,6 @@
     const dynamicValid = validateDynamicFields(selectedMode);
     if(!dynamicValid) return;
 
-    // Prepare preview summary
     const name = document.getElementById('fullName').value;
     const email = document.getElementById('email').value;
     let detailsHtml = `<strong>👤 ${name}</strong><br>📧 ${email}<br>📱 ${document.getElementById('phone').value}<br>🎓 Mode: ${selectedMode.toUpperCase()}<br>`;
@@ -481,8 +558,14 @@
       const course = document.getElementById('courseType')?.value || 'Not specified';
       detailsHtml += `📚 Target: ${course}<br>✨ Coupon will be shared on email.`;
     } else {
-      const center = document.getElementById('offlineCenter')?.value || 'Not selected';
-      detailsHtml += `📍 Center: ${center}<br>🏫 Team will share offline discount form.`;
+      const batchType = document.getElementById('batchType')?.value;
+      const batchTypeText = batchType === 'vidyapeeth' ? 'Vidyapeeth (Regular)' : (batchType === 'powerbatch' ? 'Power Batch (Crash Course)' : 'Not specified');
+      detailsHtml += `📦 Batch Type: ${batchTypeText}<br>`;
+      if(batchType !== 'powerbatch') {
+        const center = jQuery('#offlineCenter').val() || 'Not selected';
+        detailsHtml += `📍 Center: ${center}<br>`;
+      }
+      detailsHtml += `🏫 Team will share offline discount form.`;
     }
     document.getElementById('summaryPreview').innerHTML = detailsHtml;
     showStep(3);
@@ -496,16 +579,22 @@
         return false;
       }
     } else if (mode === 'offline') {
-      const center = document.getElementById('offlineCenter');
-      if(!center || !center.value) {
-        showToast('Please select a center preference', '#ef4444');
+      const batchType = document.getElementById('batchType');
+      if(!batchType || !batchType.value) {
+        showToast('Please select batch type', '#ef4444');
         return false;
+      }
+      if(batchType.value === 'vidyapeeth') {
+        const center = jQuery('#offlineCenter').val();
+        if(!center) {
+          showToast('Please select a center preference', '#ef4444');
+          return false;
+        }
       }
     }
     return true;
   }
 
-  // Submit to Apps Script backend
   document.getElementById('submitLead').addEventListener('click', async () => {
     const submitBtn = document.getElementById('submitLead');
     submitBtn.innerText = 'Processing...';
@@ -521,8 +610,12 @@
     if(selectedMode === 'online') {
       course = document.getElementById('courseType')?.value || '';
     } else {
-      center = document.getElementById('offlineCenter')?.value || '';
       batchType = document.getElementById('batchType')?.value || '';
+      if(batchType === 'vidyapeeth') {
+        center = jQuery('#offlineCenter').val() || '';
+      } else {
+        center = 'Power Batch (No specific center)';
+      }
     }
 
     const payload = {
@@ -535,17 +628,16 @@
     };
 
     try {
-      const response = await fetch(API_URL, {
+      await fetch(API_URL, {
         method: 'POST',
-        mode: 'no-cors', // simplifies CORS; but we'll handle
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      // Due to no-cors we assume success; but Apps Script will send email.
       showToast('✅ Success! Check your email for coupon details.', '#22c55e');
       document.getElementById('leadForm').reset();
       setTimeout(() => {
-        window.location.reload(); // reset form after success
+        window.location.reload();
       }, 2000);
     } catch (err) {
       console.error(err);
