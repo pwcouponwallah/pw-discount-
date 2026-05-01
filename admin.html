@@ -2,131 +2,862 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PW Ambassador Admin | Yugal Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>PW Ambassador Admin | Yugal - Lead Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    *{ margin:0; padding:0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0f172a; padding: 2rem; color: #e2e8f0; }
-    .dashboard-container { max-width: 1400px; margin: 0 auto; background: #1e293b; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 20px 35px -10px black; }
-    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .stats { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
-    .stat-card { background: #0f172a; padding: 1rem 1.8rem; border-radius: 1rem; border-left: 4px solid #22c55e; }
-    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; }
-    select, button { padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; background: #334155; color: white; font-weight: 500; cursor: pointer; }
-    button.primary { background: #22c55e; color: #0f172a; }
-    table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 1rem; overflow: auto; display: block; }
-    th, td { padding: 0.85rem; text-align: left; border-bottom: 1px solid #334155; }
-    th { background: #111827; color: #94a3b8; font-weight: 600; }
-    .email-status { background: #22c55e20; color: #86efac; border-radius: 20px; padding: 0.2rem 0.6rem; display: inline-block; }
-    .btn-resend { background: #facc15; color: black; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; border: none; font-weight: bold; }
-    .export-btn { background: #3b82f6; margin-left: auto; }
-    @media (max-width: 700px) { body { padding: 1rem; } .dashboard-container { padding: 1rem; } th, td { font-size: 0.7rem; } }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+      padding: 1.5rem;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    /* Animated gradient background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+    }
+
+    .dashboard-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Header */
+    .dashboard-header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 2rem 2rem 1.5rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    h1 i {
+      color: #22c55e;
+      font-size: 2rem;
+    }
+
+    .badge-ambassador {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .last-updated {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(5px);
+      padding: 1.25rem;
+      border-radius: 1.25rem;
+      border: 1px solid #334155;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: #22c55e;
+      box-shadow: 0 8px 25px -8px rgba(34, 197, 94, 0.3);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .stat-trend {
+      font-size: 0.7rem;
+      color: #22c55e;
+      margin-top: 0.5rem;
+    }
+
+    /* Filters Bar */
+    .filters-bar {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 1.25rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+    }
+
+    .filters-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #0f172a;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid #334155;
+    }
+
+    .filter-group label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    select, .filter-group input {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 0.85rem;
+      padding: 0.25rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    select:focus, .filter-group input:focus {
+      outline: none;
+    }
+
+    select option {
+      background: #1e293b;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #facc15;
+      color: #0f172a;
+    }
+
+    /* Table Container */
+    .table-container {
+      padding: 2rem;
+      overflow-x: auto;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leads-table th {
+      text-align: left;
+      padding: 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #334155;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .leads-table td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-size: 0.85rem;
+    }
+
+    .leads-table tr:hover {
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .status-sent {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-pending {
+      background: rgba(250, 204, 21, 0.2);
+      color: #fde047;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+    }
+
+    .status-failed {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Action Buttons */
+    .action-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+      margin: 0 0.2rem;
+    }
+
+    .action-resend {
+      color: #facc15;
+    }
+
+    .action-resend:hover {
+      background: rgba(250, 204, 21, 0.2);
+      transform: scale(1.05);
+    }
+
+    .action-view {
+      color: #3b82f6;
+    }
+
+    .action-view:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #1e293b;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid #334155;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1.3rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-body textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: white;
+      font-family: 'Inter', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+    }
+
+    /* Loading Spinner */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #334155;
+      border-top-color: #22c55e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      border-left: 4px solid #22c55e;
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      animation: slideInRight 0.3s ease;
+      z-index: 1100;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .toast.success {
+      border-left-color: #22c55e;
+    }
+    .toast.error {
+      border-left-color: #ef4444;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 0.75rem; }
+      .dashboard-header { padding: 1.25rem; }
+      .filters-bar { padding: 1rem; flex-direction: column; }
+      .filters-left { width: 100%; justify-content: space-between; }
+      .table-container { padding: 1rem; }
+      .leads-table th, .leads-table td { padding: 0.6rem; font-size: 0.7rem; }
+      .stat-value { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
+<div class="bg-gradient"></div>
+
 <div class="dashboard-container">
-  <h1>🧑‍💻 Yugal's PW Ambassador Admin <span style="font-size:0.9rem;">(Lead Manager)</span></h1>
-  <div class="stats" id="statCards"></div>
-  
-  <div class="filters">
-    <label>Filter by Mode:</label>
-    <select id="filterMode">
-      <option value="all">All Leads</option>
-      <option value="online">Online Batches</option>
-      <option value="offline">Offline / Vidyapeeth</option>
-    </select>
-    <button id="refreshBtn" class="primary">⟳ Refresh</button>
-    <button id="exportCsvBtn" class="export-btn">📎 Export CSV</button>
-    <span style="font-size:0.7rem;">📧 Email templates can be updated in backend script.</span>
+  <div class="dashboard-header">
+    <div class="header-top">
+      <h1>
+        <i class="fas fa-crown"></i>
+        Yugal's PW Ambassador Suite
+        <span class="badge-ambassador"><i class="fas fa-shield-alt"></i> Admin Access</span>
+      </h1>
+      <div class="last-updated" id="lastUpdated">
+        <i class="fas fa-sync-alt"></i> Last sync: --
+      </div>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-users"></i> TOTAL LEADS</div>
+        <div class="stat-value" id="totalLeads">0</div>
+        <div class="stat-trend"><i class="fas fa-chart-line"></i> All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-mobile-alt"></i> ONLINE BATCH</div>
+        <div class="stat-value" id="onlineCount">0</div>
+        <div class="stat-trend"><i class="fas fa-tag"></i> Coupon: 9711NDME</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-building"></i> OFFLINE / VIDYAPEETH</div>
+        <div class="stat-value" id="offlineCount">0</div>
+        <div class="stat-trend"><i class="fas fa-map-marker-alt"></i> Centers pan India</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-envelope"></i> EMAILS SENT</div>
+        <div class="stat-value" id="emailedCount">0</div>
+        <div class="stat-trend"><i class="fas fa-check-circle"></i> Delivered</div>
+      </div>
+    </div>
   </div>
-  
-  <div style="overflow-x: auto;">
-    <table id="leadsTable">
-      <thead>
-        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Mode</th><th>Course/Center</th><th>Email Status</th><th>Action</th></tr>
-      </thead>
-      <tbody id="leadRows"></tbody>
-    </table>
+
+  <div class="filters-bar">
+    <div class="filters-left">
+      <div class="filter-group">
+        <label><i class="fas fa-filter"></i> Mode:</label>
+        <select id="filterMode">
+          <option value="all">📊 All Leads</option>
+          <option value="online">📱 Online Batches</option>
+          <option value="offline">🏛️ Offline / Vidyapeeth</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="fas fa-search"></i> Search:</label>
+        <input type="text" id="searchInput" placeholder="Name, Email, Phone...">
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <button id="refreshBtn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button id="exportCsvBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Export CSV</button>
+      <button id="bulkResendBtn" class="btn btn-warning"><i class="fas fa-envelope-open-text"></i> Bulk Resend</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div id="loadingState" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Fetching leads from database...</p>
+    </div>
+    <div id="leadsContent">
+      <table class="leads-table" id="leadsTable" style="display: none;">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAllCheckbox"></th>
+            <th><i class="fas fa-user"></i> Name</th>
+            <th><i class="fas fa-envelope"></i> Email</th>
+            <th><i class="fas fa-phone"></i> Phone</th>
+            <th><i class="fas fa-tag"></i> Mode</th>
+            <th><i class="fas fa-book"></i> Course / Center</th>
+            <th><i class="fas fa-clock"></i> Timestamp</th>
+            <th><i class="fas fa-envelope-open"></i> Status</th>
+            <th><i class="fas fa-cog"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leadRows"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fas fa-inbox"></i>
+        <h3>No leads found</h3>
+        <p>Share the landing page to start collecting leads</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Email Template -->
+<div id="emailModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Customize Email</h3>
+      <button class="close-modal" onclick="closeEmailModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 0.75rem; font-size: 0.85rem;">Edit email content before sending:</p>
+      <textarea id="emailTemplate" rows="8" placeholder="Write your email content with placeholders: {name}, {mode}, {coupon}"></textarea>
+      <p style="margin-top: 0.5rem; font-size: 0.7rem; color: #64748b;"><i class="fas fa-info-circle"></i> Use {name}, {mode}, {coupon} for personalization</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+      <button class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn btn-primary" id="confirmSendBtn">Send Email</button>
+    </div>
   </div>
 </div>
 
 <script>
-  const API_BASE = 'https://script.google.com/macros/s/AKfycbzrp71aPEiKf0L4LaTaOg0-byg3bKX8sDjLxSo3ZeDgf_40n3N8rdxtE1fVC8MdmzHA/execL';  // same web app URL as landing page
+  // Configuration
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbzrp71aPEiKf0L4LaTaOg0-byg3bKX8sDjLxSo3ZeDgf_40n3N8rdxtE1fVC8MdmzHA/exec';
   
+  let allLeads = [];
+  let selectedLeadForResend = null;
+  let selectedLeadsForBulk = [];
+
+  // Helper: Show Toast
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // Fetch Leads
   async function fetchLeads(filter = 'all') {
-    let url = `${API_BASE}?mode=${filter}`;
-    const response = await fetch(url);
-    const leads = await response.json();
-    renderTable(leads);
-    renderStats(leads);
+    const loadingDiv = document.getElementById('loadingState');
+    const table = document.getElementById('leadsTable');
+    const emptyDiv = document.getElementById('emptyState');
+    
+    loadingDiv.style.display = 'block';
+    table.style.display = 'none';
+    emptyDiv.style.display = 'none';
+    
+    try {
+      let url = `${API_BASE}?mode=${filter}`;
+      const response = await fetch(url);
+      const leads = await response.json();
+      
+      allLeads = Array.isArray(leads) ? leads : [];
+      
+      renderStats(allLeads);
+      renderTable(allLeads);
+      
+      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-sync-alt"></i> Last sync: ${new Date().toLocaleString()}`;
+      
+      loadingDiv.style.display = 'none';
+      if (allLeads.length === 0) {
+        emptyDiv.style.display = 'block';
+      } else {
+        table.style.display = 'table';
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      loadingDiv.style.display = 'none';
+      emptyDiv.style.display = 'block';
+      showToast('Failed to fetch leads: ' + error.message, 'error');
+    }
   }
-  
-  function renderTable(leads) {
-    const tbody = document.getElementById('leadRows');
-    tbody.innerHTML = '';
-    leads.forEach(lead => {
-      const row = tbody.insertRow();
-      row.insertCell(0).innerText = lead["Full Name"] || '-';
-      row.insertCell(1).innerText = lead["Email"] || '-';
-      row.insertCell(2).innerText = lead["Phone"] || '-';
-      row.insertCell(3).innerText = lead["Mode (Online/Offline)"] || '-';
-      let courseCenter = lead["Course/Target"] || lead["Center Preference"] || '—';
-      row.insertCell(4).innerText = courseCenter;
-      row.insertCell(5).innerHTML = `<span class="email-status">${lead["Email Sent"] || 'PENDING'}</span>`;
-      const actionCell = row.insertCell(6);
-      const resendBtn = document.createElement('button');
-      resendBtn.innerText = '📧 Resend Email';
-      resendBtn.className = 'btn-resend';
-      resendBtn.onclick = () => resendEmailManually(lead["Email"], lead["Full Name"], lead["Mode (Online/Offline)"]);
-      actionCell.appendChild(resendBtn);
-    });
-  }
-  
+
+  // Render Stats
   function renderStats(leads) {
     const total = leads.length;
-    const onlineCount = leads.filter(l => l["Mode (Online/Offline)"] === 'online').length;
+    const onlineCount = leads.filter(l => (l["Mode (Online/Offline)"] || l["mode"]) === 'online').length;
     const offlineCount = total - onlineCount;
-    document.getElementById('statCards').innerHTML = `
-      <div class="stat-card">📊 Total Leads: ${total}</div>
-      <div class="stat-card">📱 Online: ${onlineCount}</div>
-      <div class="stat-card">🏛️ Offline: ${offlineCount}</div>
-      <div class="stat-card">✉️ Emailed: ${leads.filter(l => l["Email Sent"] === 'SENT').length}</div>
-    `;
+    const emailedCount = leads.filter(l => (l["Email Sent"] || l["emailSent"]) === 'SENT').length;
+    
+    document.getElementById('totalLeads').innerHTML = total;
+    document.getElementById('onlineCount').innerHTML = onlineCount;
+    document.getElementById('offlineCount').innerHTML = offlineCount;
+    document.getElementById('emailedCount').innerHTML = emailedCount;
   }
-  
-  async function resendEmailManually(email, name, mode) {
-    // Note: To allow easy resend, we call a separate Google Apps Script function via fetch with action param.
-    // For simplicity, we call a custom endpoint: we can send a POST to backend with action RESEND.
-    const resPayload = { action: "RESEND_EMAIL", email, name, mode };
-    try {
-      await fetch(API_BASE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(resPayload) });
-      alert(`✅ Resent discount info to ${email}`);
-    } catch(e) { alert('error resending'); }
-  }
-  
-  function exportToCsv() {
-    fetch(`${API_BASE}?mode=all`).then(res => res.json()).then(leads => {
-      let csvRows = [["Name","Email","Phone","Mode","Course","Email Status","Timestamp"]];
-      leads.forEach(l => {
-        csvRows.push([l["Full Name"], l["Email"], l["Phone"], l["Mode (Online/Offline)"], l["Course/Target"] || l["Center Preference"], l["Email Sent"], l["Timestamp"]]);
-      });
-      const csvContent = csvRows.map(row => row.join(",")).join("\n");
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'pw_leads_export.csv';
-      link.click();
+
+  // Render Table
+  function renderTable(leads) {
+    const tbody = document.getElementById('leadRows');
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    let filteredLeads = leads;
+    if (searchTerm) {
+      filteredLeads = leads.filter(lead => 
+        (lead["Full Name"] || lead["name"] || '').toLowerCase().includes(searchTerm) ||
+        (lead["Email"] || lead["email"] || '').toLowerCase().includes(searchTerm) ||
+        (lead["Phone"] || lead["phone"] || '').includes(searchTerm)
+      );
+    }
+    
+    if (filteredLeads.length === 0 && leads.length > 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 3rem; color: #64748b;">No matching leads found</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    filteredLeads.forEach((lead, index) => {
+      const row = tbody.insertRow();
+      const name = lead["Full Name"] || lead["name"] || '-';
+      const email = lead["Email"] || lead["email"] || '-';
+      const phone = lead["Phone"] || lead["phone"] || '-';
+      const mode = lead["Mode (Online/Offline)"] || lead["mode"] || '-';
+      const courseCenter = lead["Course/Target"] || lead["Center Preference"] || lead["course"] || '—';
+      const timestamp = lead["Timestamp"] || lead["timestamp"] || new Date().toLocaleString();
+      const emailStatus = lead["Email Sent"] || lead["emailSent"] || 'PENDING';
+      
+      let statusClass = 'status-pending';
+      let statusIcon = '⏳';
+      if (emailStatus === 'SENT') {
+        statusClass = 'status-sent';
+        statusIcon = '✓';
+      } else if (emailStatus === 'FAILED') {
+        statusClass = 'status-failed';
+        statusIcon = '✗';
+      }
+      
+      row.innerHTML = `
+        <td style="text-align: center;"><input type="checkbox" class="lead-checkbox" data-email="${email}" data-name="${name}" data-mode="${mode}"></td>
+        <td><strong>${escapeHtml(name)}</strong></td>
+        <td style="color: #86efac;">${escapeHtml(email)}</td>
+        <td>${escapeHtml(phone)}</td>
+        <td><span class="status-badge ${mode === 'online' ? 'status-sent' : 'status-pending'}">${mode === 'online' ? '📱 Online' : '🏛️ Offline'}</span></td>
+        <td>${escapeHtml(courseCenter)}</td>
+        <td style="font-size: 0.7rem;">${escapeHtml(timestamp)}</td>
+        <td><span class="status-badge ${statusClass}">${statusIcon} ${emailStatus}</span></td>
+        <td>
+          <button class="action-btn action-resend" onclick="openEmailModalForLead('${escapeHtml(email)}', '${escapeHtml(name)}', '${mode}')" title="Resend Email">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <button class="action-btn action-view" onclick="viewLeadDetails('${escapeHtml(name)}', '${escapeHtml(email)}', '${escapeHtml(phone)}', '${mode}', '${escapeHtml(courseCenter)}', '${emailStatus}')" title="View Details">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>
+      `;
+    });
+    
+    // Attach checkbox listeners
+    document.querySelectorAll('.lead-checkbox').forEach(cb => {
+      cb.addEventListener('change', updateBulkSelection);
     });
   }
   
+  function updateBulkSelection() {
+    const checkboxes = document.querySelectorAll('.lead-checkbox:checked');
+    selectedLeadsForBulk = Array.from(checkboxes).map(cb => ({
+      email: cb.getAttribute('data-email'),
+      name: cb.getAttribute('data-name'),
+      mode: cb.getAttribute('data-mode')
+    }));
+  }
+  
+  document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
+    document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = e.target.checked);
+    updateBulkSelection();
+  });
+  
+  function escapeHtml(str) {
+    if (!str) return '-';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  // Modal Handling
+  let currentResendData = null;
+  
+  window.openEmailModalForLead = function(email, name, mode) {
+    currentResendData = { email, name, mode, isBulk: false };
+    const defaultTemplate = mode === 'online' 
+      ? `Hi {name},\n\n🎯 Your PW Discount Coupon: 9711NDME\n💸 Get up to ₹5000 OFF on any online batch!\n\nUse new mobile number for maximum discount.\n\nBest,\nYugal (PW Ambassador)`
+      : `Hi {name},\n\nThank you for your interest in PW Offline/Vidyapeeth batch.\n\n👉 Please fill this form for exclusive discount: https://forms.gle/8q1a8tS6saGSgvXy9\n\nOur team will contact you soon.\n\nRegards,\nYugal`;
+    
+    document.getElementById('emailTemplate').value = defaultTemplate;
+    document.getElementById('emailModal').style.display = 'flex';
+  };
+  
+  window.closeEmailModal = function() {
+    document.getElementById('emailModal').style.display = 'none';
+    currentResendData = null;
+  };
+  
+  document.getElementById('confirmSendBtn').addEventListener('click', async () => {
+    if (!currentResendData) return;
+    
+    const customMessage = document.getElementById('emailTemplate').value;
+    const payload = {
+      action: "RESEND_EMAIL",
+      email: currentResendData.email,
+      name: currentResendData.name,
+      mode: currentResendData.mode,
+      customMessage: customMessage
+    };
+    
+    try {
+      await fetch(API_BASE, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      showToast(`✅ Email sent to ${currentResendData.email}`, 'success');
+      closeEmailModal();
+    } catch (error) {
+      showToast('Failed to send email', 'error');
+    }
+  });
+  
+  document.getElementById('bulkResendBtn').addEventListener('click', () => {
+    if (selectedLeadsForBulk.length === 0) {
+      showToast('Please select at least one lead', 'error');
+      return;
+    }
+    if (confirm(`Send emails to ${selectedLeadsForBulk.length} selected leads?`)) {
+      selectedLeadsForBulk.forEach(async (lead) => {
+        const payload = {
+          action: "RESEND_EMAIL",
+          email: lead.email,
+          name: lead.name,
+          mode: lead.mode,
+          customMessage: `Hi ${lead.name},\n\nYour PW discount is ready! ${lead.mode === 'online' ? 'Use code: 9711NDME for ₹5000 OFF' : 'Fill the offline form for special discount: https://forms.gle/8q1a8tS6saGSgvXy9'}\n\n- Yugal`
+        };
+        await fetch(API_BASE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+      });
+      showToast(`📧 Bulk email sending initiated for ${selectedLeadsForBulk.length} leads`, 'success');
+    }
+  });
+  
+  window.viewLeadDetails = function(name, email, phone, mode, courseCenter, status) {
+    alert(`📋 Lead Details\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMode: ${mode}\nCourse/Center: ${courseCenter}\nStatus: ${status}`);
+  };
+  
+  // Export to CSV
+  function exportToCsv() {
+    const headers = ['Full Name', 'Email', 'Phone', 'Mode', 'Course/Center', 'Email Status', 'Timestamp'];
+    const rows = allLeads.map(lead => [
+      lead["Full Name"] || lead["name"] || '',
+      lead["Email"] || lead["email"] || '',
+      lead["Phone"] || lead["phone"] || '',
+      lead["Mode (Online/Offline)"] || lead["mode"] || '',
+      lead["Course/Target"] || lead["Center Preference"] || lead["course"] || '',
+      lead["Email Sent"] || lead["emailSent"] || 'PENDING',
+      lead["Timestamp"] || lead["timestamp"] || ''
+    ]);
+    
+    const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', `pw_leads_${new Date().toISOString().slice(0,19)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('CSV exported successfully', 'success');
+  }
+  
+  // Event Listeners
   document.getElementById('refreshBtn').addEventListener('click', () => {
     const filter = document.getElementById('filterMode').value;
     fetchLeads(filter);
   });
+  
   document.getElementById('exportCsvBtn').addEventListener('click', exportToCsv);
   
-  // initial load
+  document.getElementById('filterMode').addEventListener('change', (e) => {
+    fetchLeads(e.target.value);
+  });
+  
+  document.getElementById('searchInput').addEventListener('input', () => {
+    renderTable(allLeads);
+  });
+  
+  // Initial Load
   fetchLeads('all');
 </script>
 </body>
