@@ -139,6 +139,12 @@
       color: #334155;
     }
 
+    label .optional {
+      font-weight: normal;
+      color: #94a3b8;
+      font-size: 0.7rem;
+    }
+
     input, select {
       width: 100%;
       padding: 0.9rem 1rem;
@@ -255,7 +261,6 @@
       color: #94a3b8;
     }
 
-    /* Select2 Overrides */
     .select2-container--default .select2-selection--single {
       border: 1.5px solid #e2e8f0;
       border-radius: 1rem;
@@ -363,11 +368,9 @@
 <!-- jQuery & Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  
 
-  
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxfUNU41pFBaDeq5B-XBbXyXoEkrZKCtsz9GgVkJaZpRw1Ql_J6-0cXzJXYmpxAiyWe2A/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwyV6rSHkkqaE502u97qqBumrMT0PkbfARtvVqDTiGuwdGTSAUs63tySTViM1xOG31x/exec';
   
   let selectedMode = null;
   let currentStep = 1;
@@ -421,12 +424,18 @@
           <label>Preferred Batch Type *</label>
           <select id="batchType" required>
             <option value="">Select Batch Type</option>
-            <option value="vidyapeeth">Vidyapeeth (Regular)</option>
+            <option value="vidyapeeth">Vidyapeeth (Regular Program)</option>
             <option value="powerbatch">Power Batch (Crash Course)</option>
           </select>
         </div>
         
-        <div class="input-group" id="centerGroup">
+        <div class="input-group" id="parentMobileGroup" style="display: none;">
+          <label>Parent's/Guardian's Mobile Number <span class="optional">(Required for Vidyapeeth)</span></label>
+          <input type="tel" id="parentMobile" placeholder="e.g., 9876543210">
+          <small style="font-size: 0.7rem; color: #64748b;">For counseling and fee payment confirmation</small>
+        </div>
+        
+        <div class="input-group" id="centerGroup" style="display: none;">
           <label>Select Offline Vidyapeeth Center *</label>
           <select id="offlineCenter" style="width: 100%;">
             <option value="">Loading centers...</option>
@@ -439,15 +448,22 @@
       if(batchTypeSelect) {
         batchTypeSelect.addEventListener('change', function() {
           const centerGroup = document.getElementById('centerGroup');
+          const parentMobileGroup = document.getElementById('parentMobileGroup');
+          
           if(this.value === 'powerbatch') {
             centerGroup.style.display = 'none';
-            // Remove required attribute when hidden
+            parentMobileGroup.style.display = 'none';
             const centerSelect = document.getElementById('offlineCenter');
             if(centerSelect) centerSelect.removeAttribute('required');
-          } else {
+            const parentMobileInput = document.getElementById('parentMobile');
+            if(parentMobileInput) parentMobileInput.removeAttribute('required');
+          } else if (this.value === 'vidyapeeth') {
             centerGroup.style.display = 'block';
+            parentMobileGroup.style.display = 'block';
             const centerSelect = document.getElementById('offlineCenter');
             if(centerSelect) centerSelect.setAttribute('required', 'required');
+            const parentMobileInput = document.getElementById('parentMobile');
+            if(parentMobileInput) parentMobileInput.setAttribute('required', 'required');
           }
         });
       }
@@ -538,6 +554,10 @@
       showToast('Enter valid email', '#ef4444');
       return;
     }
+    if(phone.length < 10) {
+      showToast('Enter valid mobile number', '#ef4444');
+      return;
+    }
     showStep(2);
   });
 
@@ -561,13 +581,14 @@
       detailsHtml += `📚 Target: ${course}<br>✨ Coupon will be shared on email.`;
     } else {
       const batchType = document.getElementById('batchType')?.value;
-      const batchTypeText = batchType === 'vidyapeeth' ? 'Vidyapeeth (Regular)' : (batchType === 'powerbatch' ? 'Power Batch (Crash Course)' : 'Not specified');
+      const batchTypeText = batchType === 'vidyapeeth' ? 'Vidyapeeth (Regular Program)' : (batchType === 'powerbatch' ? 'Power Batch (Crash Course)' : 'Not specified');
       detailsHtml += `📦 Batch Type: ${batchTypeText}<br>`;
-      if(batchType !== 'powerbatch') {
+      if(batchType === 'vidyapeeth') {
         const center = jQuery('#offlineCenter').val() || 'Not selected';
-        detailsHtml += `📍 Center: ${center}<br>`;
+        const parentMobile = document.getElementById('parentMobile')?.value || 'Not provided';
+        detailsHtml += `📍 Center: ${center}<br>👨‍👩‍👧 Parent's Mobile: ${parentMobile}<br>`;
       }
-      detailsHtml += `🏫 Team will share offline discount form.`;
+      detailsHtml += `🏫 Team will share offline discount details.`;
     }
     document.getElementById('summaryPreview').innerHTML = detailsHtml;
     showStep(3);
@@ -592,6 +613,11 @@
           showToast('Please select a center preference', '#ef4444');
           return false;
         }
+        const parentMobile = document.getElementById('parentMobile')?.value;
+        if(!parentMobile || parentMobile.length < 10) {
+          showToast('Please enter valid parent/guardian mobile number', '#ef4444');
+          return false;
+        }
       }
     }
     return true;
@@ -608,6 +634,7 @@
     let course = '';
     let center = '';
     let batchType = '';
+    let parentMobile = '';
 
     if(selectedMode === 'online') {
       course = document.getElementById('courseType')?.value || '';
@@ -615,6 +642,7 @@
       batchType = document.getElementById('batchType')?.value || '';
       if(batchType === 'vidyapeeth') {
         center = jQuery('#offlineCenter').val() || '';
+        parentMobile = document.getElementById('parentMobile')?.value || '';
       } else {
         center = 'Power Batch (No specific center)';
       }
@@ -626,6 +654,7 @@
       course: course,
       center: center,
       batchType: batchType,
+      parentMobile: parentMobile,
       timestamp: new Date().toISOString()
     };
 
@@ -636,7 +665,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      showToast('✅ Success! Check your email for coupon details.', '#22c55e');
+      showToast('✅ Success! Check your email for coupon & group links.', '#22c55e');
       document.getElementById('leadForm').reset();
       setTimeout(() => {
         window.location.reload();
