@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PW Ambassador Admin | Yugal Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    *{ margin:0; padding:0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; padding: 2rem; color: #e2e8f0; }
+    .dashboard-container { max-width: 1400px; margin: 0 auto; background: #1e293b; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 20px 35px -10px black; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .stats { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
+    .stat-card { background: #0f172a; padding: 1rem 1.8rem; border-radius: 1rem; border-left: 4px solid #22c55e; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; }
+    select, button { padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; background: #334155; color: white; font-weight: 500; cursor: pointer; }
+    button.primary { background: #22c55e; color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 1rem; overflow: auto; display: block; }
+    th, td { padding: 0.85rem; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: #111827; color: #94a3b8; font-weight: 600; }
+    .email-status { background: #22c55e20; color: #86efac; border-radius: 20px; padding: 0.2rem 0.6rem; display: inline-block; }
+    .btn-resend { background: #facc15; color: black; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; border: none; font-weight: bold; }
+    .export-btn { background: #3b82f6; margin-left: auto; }
+    @media (max-width: 700px) { body { padding: 1rem; } .dashboard-container { padding: 1rem; } th, td { font-size: 0.7rem; } }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+  <h1>🧑‍💻 Yugal's PW Ambassador Admin <span style="font-size:0.9rem;">(Lead Manager)</span></h1>
+  <div class="stats" id="statCards"></div>
+  
+  <div class="filters">
+    <label>Filter by Mode:</label>
+    <select id="filterMode">
+      <option value="all">All Leads</option>
+      <option value="online">Online Batches</option>
+      <option value="offline">Offline / Vidyapeeth</option>
+    </select>
+    <button id="refreshBtn" class="primary">⟳ Refresh</button>
+    <button id="exportCsvBtn" class="export-btn">📎 Export CSV</button>
+    <span style="font-size:0.7rem;">📧 Email templates can be updated in backend script.</span>
+  </div>
+  
+  <div style="overflow-x: auto;">
+    <table id="leadsTable">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Mode</th><th>Course/Center</th><th>Email Status</th><th>Action</th></tr>
+      </thead>
+      <tbody id="leadRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbzrp71aPEiKf0L4LaTaOg0-byg3bKX8sDjLxSo3ZeDgf_40n3N8rdxtE1fVC8MdmzHA/execL';  // same web app URL as landing page
+  
+  async function fetchLeads(filter = 'all') {
+    let url = `${API_BASE}?mode=${filter}`;
+    const response = await fetch(url);
+    const leads = await response.json();
+    renderTable(leads);
+    renderStats(leads);
+  }
+  
+  function renderTable(leads) {
+    const tbody = document.getElementById('leadRows');
+    tbody.innerHTML = '';
+    leads.forEach(lead => {
+      const row = tbody.insertRow();
+      row.insertCell(0).innerText = lead["Full Name"] || '-';
+      row.insertCell(1).innerText = lead["Email"] || '-';
+      row.insertCell(2).innerText = lead["Phone"] || '-';
+      row.insertCell(3).innerText = lead["Mode (Online/Offline)"] || '-';
+      let courseCenter = lead["Course/Target"] || lead["Center Preference"] || '—';
+      row.insertCell(4).innerText = courseCenter;
+      row.insertCell(5).innerHTML = `<span class="email-status">${lead["Email Sent"] || 'PENDING'}</span>`;
+      const actionCell = row.insertCell(6);
+      const resendBtn = document.createElement('button');
+      resendBtn.innerText = '📧 Resend Email';
+      resendBtn.className = 'btn-resend';
+      resendBtn.onclick = () => resendEmailManually(lead["Email"], lead["Full Name"], lead["Mode (Online/Offline)"]);
+      actionCell.appendChild(resendBtn);
+    });
+  }
+  
+  function renderStats(leads) {
+    const total = leads.length;
+    const onlineCount = leads.filter(l => l["Mode (Online/Offline)"] === 'online').length;
+    const offlineCount = total - onlineCount;
+    document.getElementById('statCards').innerHTML = `
+      <div class="stat-card">📊 Total Leads: ${total}</div>
+      <div class="stat-card">📱 Online: ${onlineCount}</div>
+      <div class="stat-card">🏛️ Offline: ${offlineCount}</div>
+      <div class="stat-card">✉️ Emailed: ${leads.filter(l => l["Email Sent"] === 'SENT').length}</div>
+    `;
+  }
+  
+  async function resendEmailManually(email, name, mode) {
+    // Note: To allow easy resend, we call a separate Google Apps Script function via fetch with action param.
+    // For simplicity, we call a custom endpoint: we can send a POST to backend with action RESEND.
+    const resPayload = { action: "RESEND_EMAIL", email, name, mode };
+    try {
+      await fetch(API_BASE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(resPayload) });
+      alert(`✅ Resent discount info to ${email}`);
+    } catch(e) { alert('error resending'); }
+  }
+  
+  function exportToCsv() {
+    fetch(`${API_BASE}?mode=all`).then(res => res.json()).then(leads => {
+      let csvRows = [["Name","Email","Phone","Mode","Course","Email Status","Timestamp"]];
+      leads.forEach(l => {
+        csvRows.push([l["Full Name"], l["Email"], l["Phone"], l["Mode (Online/Offline)"], l["Course/Target"] || l["Center Preference"], l["Email Sent"], l["Timestamp"]]);
+      });
+      const csvContent = csvRows.map(row => row.join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'pw_leads_export.csv';
+      link.click();
+    });
+  }
+  
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    const filter = document.getElementById('filterMode').value;
+    fetchLeads(filter);
+  });
+  document.getElementById('exportCsvBtn').addEventListener('click', exportToCsv);
+  
+  // initial load
+  fetchLeads('all');
+</script>
+</body>
+</html>
