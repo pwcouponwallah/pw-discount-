@@ -2,863 +2,1387 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PW Ambassador Admin | Yugal - Lead Management System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PW Ambassador Suite · Admin — Yugal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg:        #07080d;
+      --bg2:       #0d0f18;
+      --bg3:       #111520;
+      --surface:   #161b2e;
+      --surface2:  #1c2236;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --red:       #e5173f;
+      --red-dim:   rgba(229,23,63,0.15);
+      --red-glow:  rgba(229,23,63,0.35);
+      --orange:    #f97316;
+      --yellow:    #fbbf24;
+      --green:     #22c55e;
+      --green-dim: rgba(34,197,94,0.12);
+      --blue:      #38bdf8;
+      --blue-dim:  rgba(56,189,248,0.12);
+      --muted:     #4a5568;
+      --muted2:    #64748b;
+      --text:      #e2e8f0;
+      --text2:     #94a3b8;
+      --text3:     #64748b;
+      --radius:    0.75rem;
+      --radius2:   1.25rem;
+      --radius3:   1.75rem;
+      --font-head: 'Sora', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
-      padding: 1.5rem;
-      color: #e2e8f0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Animated gradient background */
-    .bg-gradient {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background: radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+    /* ── MESH BG ── */
+    .mesh {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 20%, rgba(229,23,63,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 90% 75%, rgba(56,189,248,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 55% 50%, rgba(251,191,36,0.03) 0%, transparent 50%);
     }
 
-    .dashboard-container {
-      max-width: 1600px;
-      margin: 0 auto;
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(10px);
-      border-radius: 2rem;
-      border: 1px solid rgba(71, 85, 105, 0.5);
-      overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
+    /* ── LAYOUT ── */
+    .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
-    /* Header */
-    .dashboard-header {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      padding: 2rem 2rem 1.5rem;
-      border-bottom: 1px solid #334155;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    h1 i {
-      color: #22c55e;
-      font-size: 2rem;
-    }
-
-    .badge-ambassador {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      padding: 0.4rem 1rem;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: white;
-    }
-
-    .last-updated {
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(5px);
-      padding: 1.25rem;
-      border-radius: 1.25rem;
-      border: 1px solid #334155;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-      border-color: #22c55e;
-      box-shadow: 0 8px 25px -8px rgba(34, 197, 94, 0.3);
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #94a3b8;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: white;
-    }
-
-    .stat-trend {
-      font-size: 0.7rem;
-      color: #22c55e;
-      margin-top: 0.5rem;
-    }
-
-    /* Filters Bar */
-    .filters-bar {
-      background: rgba(15, 23, 42, 0.6);
-      padding: 1.25rem 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #334155;
-    }
-
-    .filters-left {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #0f172a;
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
-      border: 1px solid #334155;
-    }
-
-    .filter-group label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #94a3b8;
-    }
-
-    select, .filter-group input {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 0.85rem;
-      padding: 0.25rem;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-    }
-
-    select:focus, .filter-group input:focus {
-      outline: none;
-    }
-
-    select option {
-      background: #1e293b;
-    }
-
-    .btn {
-      padding: 0.6rem 1.2rem;
-      border-radius: 2rem;
-      border: none;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-    }
-
-    .btn-secondary {
-      background: #334155;
-      color: #e2e8f0;
-    }
-
-    .btn-secondary:hover {
-      background: #475569;
-    }
-
-    .btn-danger {
-      background: #ef4444;
-      color: white;
-    }
-
-    .btn-warning {
-      background: #facc15;
-      color: #0f172a;
-    }
-
-    /* Table Container */
-    .table-container {
-      padding: 2rem;
-      overflow-x: auto;
-      max-height: 60vh;
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
       overflow-y: auto;
     }
 
-    .leads-table {
-      width: 100%;
-      border-collapse: collapse;
+    .sidebar-logo {
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    .leads-table th {
-      text-align: left;
-      padding: 1rem;
-      background: rgba(15, 23, 42, 0.8);
-      color: #94a3b8;
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid #334155;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+    .logo-mark {
+      display: flex; align-items: center; gap: 0.75rem;
     }
 
-    .leads-table td {
-      padding: 1rem;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-      font-size: 0.85rem;
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--red);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 800; font-size: 1rem; color: white;
+      box-shadow: 0 4px 14px var(--red-glow);
     }
 
-    .leads-table tr:hover {
-      background: rgba(34, 197, 94, 0.05);
-    }
+    .logo-text { font-family: var(--font-head); font-size: 0.92rem; font-weight: 700; line-height: 1.2; }
+    .logo-text span { color: var(--yellow); display: block; font-size: 0.68rem; font-weight: 500; color: var(--text3); }
 
-    /* Status Badges */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.25rem 0.75rem;
-      border-radius: 2rem;
-      font-size: 0.7rem;
-      font-weight: 600;
+    .sidebar-nav { padding: 1.25rem 0.75rem; flex: 1; }
+    .nav-section-label {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text3);
+      padding: 0 0.6rem; margin: 1.25rem 0 0.5rem;
     }
+    .nav-section-label:first-child { margin-top: 0; }
 
-    .status-sent {
-      background: rgba(34, 197, 94, 0.2);
-      color: #86efac;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .status-pending {
-      background: rgba(250, 204, 21, 0.2);
-      color: #fde047;
-      border: 1px solid rgba(250, 204, 21, 0.3);
-    }
-
-    .status-failed {
-      background: rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    /* Action Buttons */
-    .action-btn {
-      background: transparent;
-      border: none;
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 1rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 0.5rem;
-      transition: all 0.2s;
-      margin: 0 0.2rem;
+      font-size: 0.85rem; font-weight: 500; color: var(--text2);
+      transition: all 0.18s;
+      border: 1px solid transparent;
+      margin-bottom: 0.2rem;
+      text-decoration: none;
     }
 
-    .action-resend {
-      color: #facc15;
+    .nav-item i { width: 16px; text-align: center; font-size: 0.82rem; }
+    .nav-item:hover { background: var(--surface); color: var(--text); }
+    .nav-item.active { background: var(--red-dim); color: white; border-color: rgba(229,23,63,0.25); }
+    .nav-item.active i { color: var(--red); }
+    .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 20px; font-family: var(--font-mono); }
+
+    .sidebar-footer {
+      padding: 1rem 0.75rem;
+      border-top: 1px solid var(--border);
     }
 
-    .action-resend:hover {
-      background: rgba(250, 204, 21, 0.2);
-      transform: scale(1.05);
-    }
-
-    .action-view {
-      color: #3b82f6;
-    }
-
-    .action-view:hover {
-      background: rgba(59, 130, 246, 0.2);
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: #1e293b;
-      border-radius: 1.5rem;
-      padding: 2rem;
-      max-width: 500px;
-      width: 90%;
-      border: 1px solid #334155;
-      animation: modalSlideIn 0.3s ease;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-header h3 {
-      font-size: 1.3rem;
-    }
-
-    .close-modal {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .modal-body {
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-body textarea {
-      width: 100%;
+    .ambassador-pill {
+      background: linear-gradient(135deg, rgba(229,23,63,0.12), rgba(251,191,36,0.08));
+      border: 1px solid rgba(229,23,63,0.2);
+      border-radius: var(--radius);
       padding: 0.75rem;
-      border-radius: 0.75rem;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: white;
-      font-family: 'Inter', monospace;
-      font-size: 0.85rem;
-      resize: vertical;
+      font-size: 0.75rem;
     }
 
-    /* Loading Spinner */
-    .loading {
-      text-align: center;
-      padding: 3rem;
+    .ambassador-pill strong { display: block; color: white; margin-bottom: 0.2rem; }
+    .ambassador-pill span { color: var(--text3); font-size: 0.68rem; }
+    .coupon-chip {
+      margin-top: 0.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--yellow);
+      display: flex; align-items: center; justify-content: space-between;
     }
 
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #334155;
-      border-top-color: #22c55e;
+    .copy-btn {
+      background: none; border: none; color: var(--text3); cursor: pointer;
+      font-size: 0.7rem; transition: color 0.2s;
+    }
+    .copy-btn:hover { color: var(--yellow); }
+
+    /* ── MAIN ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: rgba(13, 15, 24, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      gap: 1rem;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 1rem; }
+    .topbar-title { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; }
+    .topbar-subtitle { font-size: 0.75rem; color: var(--text3); }
+
+    .live-indicator {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; color: var(--green);
+      background: var(--green-dim); border: 1px solid rgba(34,197,94,0.2);
+      padding: 0.3rem 0.75rem; border-radius: 20px;
+    }
+
+    .live-dot {
+      width: 7px; height: 7px; background: var(--green); border-radius: 50%;
+      animation: livepulse 1.5s infinite;
+    }
+
+    @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+
+    .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+    .tb-btn {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text2); padding: 0.55rem 1.1rem;
+      border-radius: var(--radius); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-body);
+    }
+
+    .tb-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+    .tb-btn.primary { background: var(--red); border-color: var(--red); color: white; }
+    .tb-btn.primary:hover { background: #c8102f; box-shadow: 0 4px 14px var(--red-glow); }
+    .tb-btn.green { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: var(--green); }
+    .tb-btn.green:hover { background: rgba(34,197,94,0.2); }
+
+    /* ── CONTENT ── */
+    .content { padding: 1.75rem 2rem; flex: 1; }
+
+    /* ── STATS ROW ── */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 1.25rem 1.4rem;
+      position: relative; overflow: hidden;
+      transition: all 0.25s; cursor: default;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-color), transparent);
+    }
+
+    .stat-card:hover { transform: translateY(-3px); border-color: var(--border2); }
+
+    .stat-card[data-accent="red"] { --accent-color: var(--red); }
+    .stat-card[data-accent="green"] { --accent-color: var(--green); }
+    .stat-card[data-accent="blue"] { --accent-color: var(--blue); }
+    .stat-card[data-accent="yellow"] { --accent-color: var(--yellow); }
+    .stat-card[data-accent="orange"] { --accent-color: var(--orange); }
+
+    .stat-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; margin-bottom: 1rem;
+    }
+
+    .stat-card[data-accent="red"] .stat-icon { background: var(--red-dim); color: var(--red); }
+    .stat-card[data-accent="green"] .stat-icon { background: var(--green-dim); color: var(--green); }
+    .stat-card[data-accent="blue"] .stat-icon { background: var(--blue-dim); color: var(--blue); }
+    .stat-card[data-accent="yellow"] .stat-icon { background: rgba(251,191,36,0.1); color: var(--yellow); }
+    .stat-card[data-accent="orange"] .stat-icon { background: rgba(249,115,22,0.1); color: var(--orange); }
+
+    .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 0.35rem; }
+    .stat-value { font-family: var(--font-head); font-size: 2rem; font-weight: 800; line-height: 1; color: white; }
+    .stat-delta { font-size: 0.7rem; color: var(--text3); margin-top: 0.4rem; display: flex; align-items: center; gap: 0.3rem; }
+    .stat-delta.up { color: var(--green); }
+
+    /* ── CHARTS ROW ── */
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem; }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 1.5rem;
+    }
+
+    .chart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-title { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; }
+    .chart-sub { font-size: 0.72rem; color: var(--text3); margin-top: 0.2rem; }
+
+    .mini-chart { height: 120px; position: relative; display: flex; align-items: flex-end; gap: 4px; }
+    .bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(.34,1.56,.64,1); min-height: 4px; cursor: pointer; position: relative; }
+    .bar:hover::after {
+      content: attr(data-val);
+      position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+      background: var(--surface2); color: white; font-size: 0.65rem; font-family: var(--font-mono);
+      padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+    }
+
+    /* Donut chart (CSS only) */
+    .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 2rem; }
+    .donut-svg { width: 110px; height: 110px; }
+    .donut-track { fill: none; stroke: var(--surface2); stroke-width: 14; }
+    .donut-seg { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(.34,1.56,.64,1); }
+    .donut-legend { display: flex; flex-direction: column; gap: 0.6rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── TOOLBAR ── */
+    .table-toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 1rem 1.25rem;
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .toolbar-search {
+      flex: 1; min-width: 220px;
+      display: flex; align-items: center; gap: 0.6rem;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 0.55rem 1rem;
+    }
+
+    .toolbar-search i { color: var(--text3); font-size: 0.8rem; }
+    .toolbar-search input {
+      background: none; border: none; color: white;
+      font-size: 0.85rem; width: 100%; font-family: var(--font-body);
+    }
+    .toolbar-search input:focus { outline: none; }
+    .toolbar-search input::placeholder { color: var(--text3); }
+
+    .toolbar-filter {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 0.55rem 1rem;
+      font-size: 0.82rem; color: var(--text2);
+    }
+
+    .toolbar-filter select {
+      background: none; border: none; color: var(--text);
+      font-size: 0.82rem; font-family: var(--font-body); cursor: pointer;
+    }
+    .toolbar-filter select:focus { outline: none; }
+    .toolbar-filter select option { background: var(--surface2); color: white; }
+
+    .toolbar-actions { display: flex; gap: 0.6rem; margin-left: auto; }
+
+    .tool-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1rem; border-radius: var(--radius);
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border2); background: var(--bg3);
+      color: var(--text2); transition: all 0.18s;
+      font-family: var(--font-body);
+    }
+
+    .tool-btn:hover { background: var(--surface2); color: var(--text); }
+    .tool-btn.accent-red { border-color: rgba(229,23,63,0.3); color: #fca5a5; background: var(--red-dim); }
+    .tool-btn.accent-red:hover { background: rgba(229,23,63,0.25); }
+    .tool-btn.accent-green { border-color: rgba(34,197,94,0.3); color: var(--green); background: var(--green-dim); }
+    .tool-btn.accent-green:hover { background: rgba(34,197,94,0.2); }
+    .tool-btn.accent-yellow { border-color: rgba(251,191,36,0.3); color: var(--yellow); background: rgba(251,191,36,0.08); }
+    .tool-btn.accent-yellow:hover { background: rgba(251,191,36,0.15); }
+
+    /* Bulk select bar */
+    .bulk-bar {
+      display: none; align-items: center; gap: 1rem;
+      background: rgba(229,23,63,0.1); border: 1px solid rgba(229,23,63,0.25);
+      border-radius: var(--radius); padding: 0.65rem 1.25rem;
+      font-size: 0.82rem; animation: slideDown 0.2s ease;
+    }
+
+    .bulk-bar.visible { display: flex; }
+
+    @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+    .bulk-bar span { color: var(--text2); }
+    .bulk-bar strong { color: white; }
+    .bulk-actions { display: flex; gap: 0.5rem; margin-left: auto; }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      overflow: hidden;
+    }
+
+    .leads-table { width: 100%; border-collapse: collapse; }
+
+    .leads-table thead th {
+      background: var(--bg3);
+      padding: 0.85rem 1rem;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .leads-table thead th.sortable { cursor: pointer; }
+    .leads-table thead th.sortable:hover { color: var(--text); }
+    .sort-icon { margin-left: 0.3rem; opacity: 0.4; font-size: 0.6rem; }
+    .sort-icon.active { opacity: 1; color: var(--red); }
+
+    .leads-table tbody tr {
+      transition: background 0.15s;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .leads-table tbody tr:last-child { border-bottom: none; }
+    .leads-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+    .leads-table tbody tr.selected { background: rgba(229,23,63,0.06); }
+
+    .leads-table td { padding: 0.9rem 1rem; font-size: 0.82rem; vertical-align: middle; }
+
+    .cell-check { width: 40px; text-align: center; }
+
+    input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: var(--red); cursor: pointer;
+    }
+
+    .cell-name strong { display: block; font-weight: 600; font-size: 0.83rem; color: white; }
+    .cell-name span { font-size: 0.7rem; color: var(--text3); }
+    .cell-email { color: #93c5fd; font-size: 0.8rem; font-family: var(--font-mono); }
+    .cell-phone { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text2); }
+    .cell-ts { font-size: 0.72rem; color: var(--text3); font-family: var(--font-mono); }
+    .cell-course { font-size: 0.78rem; color: var(--text2); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cell-btype { font-size: 0.72rem; color: var(--text3); }
+
+    /* Badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.65rem; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .badge-online { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
+    .badge-offline { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+    .badge-sent { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .badge-pending { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+    .badge-failed { background: var(--red-dim); color: #fca5a5; border: 1px solid rgba(229,23,63,0.2); }
+
+    /* Row actions */
+    .row-actions { display: flex; gap: 0.3rem; }
+    .row-btn {
+      width: 30px; height: 30px; border-radius: 7px;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; transition: all 0.18s; background: transparent; color: var(--text3);
+    }
+    .row-btn:hover { background: var(--surface2); color: var(--text); transform: scale(1.1); }
+    .row-btn.send:hover { color: var(--yellow); background: rgba(251,191,36,0.1); }
+    .row-btn.view:hover { color: var(--blue); background: var(--blue-dim); }
+    .row-btn.del:hover { color: #fca5a5; background: var(--red-dim); }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      text-align: center; padding: 5rem 2rem;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: var(--surface2); display: flex; align-items: center;
+      justify-content: center; font-size: 1.75rem; color: var(--text3);
+    }
+
+    .empty-state h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; color: var(--text2); }
+    .empty-state p { font-size: 0.82rem; color: var(--text3); }
+
+    .loading-row td {
+      padding: 4rem 2rem; text-align: center;
+    }
+
+    .spinner-ring {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--red);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.7s linear infinite;
       margin: 0 auto 1rem;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 1.25rem;
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--text3);
     }
 
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #64748b;
+    .page-btns { display: flex; gap: 0.4rem; }
+    .page-btn {
+      width: 30px; height: 30px; border-radius: 7px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text2); cursor: pointer; font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .page-btn:hover { background: var(--surface2); color: white; }
+    .page-btn.active { background: var(--red); border-color: var(--red); color: white; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
     }
 
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius3);
+      width: 100%; max-width: 540px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+      animation: modalIn 0.25s cubic-bezier(.34,1.56,.64,1);
     }
 
-    /* Toast Notification */
+    @keyframes modalIn { from { opacity:0; transform:scale(0.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+    .modal-head {
+      padding: 1.5rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .modal-head h3 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; }
+    .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1.3rem; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .modal-close:hover { background: var(--surface2); color: white; }
+
+    .modal-body { padding: 1.5rem 1.75rem; }
+    .modal-foot { padding: 1.25rem 1.75rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+    .field-group { margin-bottom: 1.1rem; }
+    .field-label { font-size: 0.75rem; font-weight: 600; color: var(--text3); margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.06em; }
+    .field-input {
+      width: 100%; padding: 0.75rem 1rem;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); color: white;
+      font-size: 0.85rem; font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(229,23,63,0.12); }
+    .field-input.mono { font-family: var(--font-mono); font-size: 0.8rem; }
+    .field-input textarea { resize: vertical; min-height: 110px; }
+    textarea.field-input { resize: vertical; min-height: 110px; }
+
+    .lead-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .detail-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem; }
+    .detail-cell-label { font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 0.25rem; }
+    .detail-cell-value { font-size: 0.82rem; color: white; word-break: break-all; }
+    .detail-cell-value.mono { font-family: var(--font-mono); color: #93c5fd; }
+
+    /* Template chips */
+    .template-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .chip {
+      padding: 0.25rem 0.65rem; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600;
+      border: 1px solid var(--border2); background: var(--bg3);
+      color: var(--text2); cursor: pointer; transition: all 0.15s;
+    }
+    .chip:hover { background: var(--red-dim); border-color: rgba(229,23,63,0.3); color: #fca5a5; }
+
+    /* Footer modal btns */
+    .mfbtn {
+      padding: 0.7rem 1.5rem; border-radius: var(--radius);
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text2); transition: all 0.18s;
+      font-family: var(--font-body);
+    }
+    .mfbtn:hover { background: var(--bg3); color: white; }
+    .mfbtn.send { background: var(--red); border-color: var(--red); color: white; }
+    .mfbtn.send:hover { background: #c8102f; box-shadow: 0 4px 14px var(--red-glow); }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: #1e293b;
-      border-left: 4px solid #22c55e;
-      padding: 1rem 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      animation: slideInRight 0.3s ease;
-      z-index: 1100;
+      background: var(--surface2);
+      border-left: 4px solid var(--green);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.25rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.82rem; min-width: 260px;
+      animation: toastIn 0.3s cubic-bezier(.34,1.56,.64,1);
     }
 
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+    .toast.error { border-left-color: var(--red); }
+    .toast.warn { border-left-color: var(--yellow); }
+    .toast.info { border-left-color: var(--blue); }
+
+    @keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1200px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
     }
 
-    .toast.success {
-      border-left-color: #22c55e;
-    }
-    .toast.error {
-      border-left-color: #ef4444;
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .content { padding: 1.25rem; }
+      .topbar { padding: 0.85rem 1.25rem; }
     }
 
-    @media (max-width: 768px) {
-      body { padding: 0.75rem; }
-      .dashboard-header { padding: 1.25rem; }
-      .filters-bar { padding: 1rem; flex-direction: column; }
-      .filters-left { width: 100%; justify-content: space-between; }
-      .table-container { padding: 1rem; }
-      .leads-table th, .leads-table td { padding: 0.6rem; font-size: 0.7rem; }
-      .stat-value { font-size: 1.5rem; }
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .topbar-right .tb-btn span { display: none; }
+      .toolbar-actions .tool-btn span { display: none; }
     }
   </style>
 </head>
 <body>
-<div class="bg-gradient"></div>
+<div class="mesh"></div>
 
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <div class="header-top">
-      <h1>
-        <i class="fas fa-crown"></i>
-        Yugal's PW Ambassador Suite
-        <span class="badge-ambassador"><i class="fas fa-shield-alt"></i> Admin Access</span>
-      </h1>
-      <div class="last-updated" id="lastUpdated">
-        <i class="fas fa-sync-alt"></i> Last sync: --
+<div class="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">PW</div>
+        <div class="logo-text">Ambassador Suite <span>Yugal · Admin v2</span></div>
       </div>
     </div>
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card">
-        <div class="stat-label"><i class="fas fa-users"></i> TOTAL LEADS</div>
-        <div class="stat-value" id="totalLeads">0</div>
-        <div class="stat-trend"><i class="fas fa-chart-line"></i> All time</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><i class="fas fa-mobile-alt"></i> ONLINE BATCH</div>
-        <div class="stat-value" id="onlineCount">0</div>
-        <div class="stat-trend"><i class="fas fa-tag"></i> Coupon: 9711NDME</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><i class="fas fa-building"></i> OFFLINE / VIDYAPEETH</div>
-        <div class="stat-value" id="offlineCount">0</div>
-        <div class="stat-trend"><i class="fas fa-map-marker-alt"></i> Centers pan India</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><i class="fas fa-envelope"></i> EMAILS SENT</div>
-        <div class="stat-value" id="emailedCount">0</div>
-        <div class="stat-trend"><i class="fas fa-check-circle"></i> Delivered</div>
-      </div>
-    </div>
-  </div>
 
-  <div class="filters-bar">
-    <div class="filters-left">
-      <div class="filter-group">
-        <label><i class="fas fa-filter"></i> Mode:</label>
-        <select id="filterMode">
-          <option value="all">📊 All Leads</option>
-          <option value="online">📱 Online Batches</option>
-          <option value="offline">🏛️ Offline / Vidyapeeth</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label><i class="fas fa-search"></i> Search:</label>
-        <input type="text" id="searchInput" placeholder="Name, Email, Phone...">
-      </div>
-    </div>
-    <div style="display: flex; gap: 0.75rem;">
-      <button id="refreshBtn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
-      <button id="exportCsvBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Export CSV</button>
-      <button id="bulkResendBtn" class="btn btn-warning"><i class="fas fa-envelope-open-text"></i> Bulk Resend</button>
-    </div>
-  </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item active" href="#"><i class="fas fa-chart-pie"></i> Dashboard <span class="nav-badge" id="sidebarTotal">0</span></a>
+      <a class="nav-item" href="#" onclick="return false"><i class="fas fa-users"></i> All Leads</a>
+      <a class="nav-item" href="#" onclick="return false"><i class="fas fa-mobile-alt"></i> Online Batch</a>
+      <a class="nav-item" href="#" onclick="return false"><i class="fas fa-building"></i> Vidyapeeth</a>
 
-  <div class="table-container">
-    <div id="loadingState" class="loading" style="display: none;">
-      <div class="spinner"></div>
-      <p>Fetching leads from database...</p>
-    </div>
-    <div id="leadsContent">
-      <table class="leads-table" id="leadsTable" style="display: none;">
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="selectAllCheckbox"></th>
-            <th><i class="fas fa-user"></i> Name</th>
-            <th><i class="fas fa-envelope"></i> Email</th>
-            <th><i class="fas fa-phone"></i> Phone</th>
-            <th><i class="fas fa-tag"></i> Mode</th>
-            <th><i class="fas fa-book"></i> Course / Center</th>
-            <th><i class="fas fa-clock"></i> Timestamp</th>
-            <th><i class="fas fa-envelope-open"></i> Status</th>
-            <th><i class="fas fa-cog"></i> Actions</th>
-          </tr>
-        </thead>
-        <tbody id="leadRows"></tbody>
-      </table>
-      <div id="emptyState" class="empty-state" style="display: none;">
-        <i class="fas fa-inbox"></i>
-        <h3>No leads found</h3>
-        <p>Share the landing page to start collecting leads</p>
+      <div class="nav-section-label">Tools</div>
+      <a class="nav-item" href="#" onclick="exportToCsv(); return false;"><i class="fas fa-download"></i> Export CSV</a>
+      <a class="nav-item" href="#" onclick="openBulkModal(); return false;"><i class="fas fa-paper-plane"></i> Bulk Email</a>
+      <a class="nav-item" href="#" onclick="fetchLeads(); return false;"><i class="fas fa-sync-alt"></i> Refresh Data</a>
+
+      <div class="nav-section-label">Links</div>
+      <a class="nav-item" href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Landing Page</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="ambassador-pill">
+        <strong>🏅 Yugal · PW Ambassador</strong>
+        <span>Online Coupon Code</span>
+        <div class="coupon-chip">
+          <span id="couponDisplay">9711NDME</span>
+          <button class="copy-btn" onclick="copyCoupon()"><i class="fas fa-copy"></i></button>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  </aside>
 
-<!-- Modal for Email Template -->
-<div id="emailModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fas fa-edit"></i> Customize Email</h3>
-      <button class="close-modal" onclick="closeEmailModal()">×</button>
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="topbar-title">Lead Management System</div>
+          <div class="topbar-subtitle" id="syncLabel">Connecting to Google Sheets…</div>
+        </div>
+        <div class="live-indicator">
+          <span class="live-dot"></span> Live
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="tb-btn" onclick="fetchLeads()"><i class="fas fa-sync-alt"></i> <span>Refresh</span></button>
+        <button class="tb-btn green" onclick="exportToCsv()"><i class="fas fa-file-csv"></i> <span>Export</span></button>
+        <button class="tb-btn primary" onclick="openBulkModal()"><i class="fas fa-paper-plane"></i> <span>Bulk Send</span></button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card" data-accent="red">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div class="stat-label">Total Leads</div>
+          <div class="stat-value" id="st_total">—</div>
+          <div class="stat-delta"><i class="fas fa-database"></i> All time</div>
+        </div>
+        <div class="stat-card" data-accent="blue">
+          <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
+          <div class="stat-label">Online Batches</div>
+          <div class="stat-value" id="st_online">—</div>
+          <div class="stat-delta"><i class="fas fa-tag"></i> Coupon: 9711NDME</div>
+        </div>
+        <div class="stat-card" data-accent="yellow">
+          <div class="stat-icon"><i class="fas fa-building"></i></div>
+          <div class="stat-label">Offline / Vidyapeeth</div>
+          <div class="stat-value" id="st_offline">—</div>
+          <div class="stat-delta"><i class="fas fa-map-marker-alt"></i> 160+ centers</div>
+        </div>
+        <div class="stat-card" data-accent="green">
+          <div class="stat-icon"><i class="fas fa-envelope-open-text"></i></div>
+          <div class="stat-label">Emails Sent</div>
+          <div class="stat-value" id="st_sent">—</div>
+          <div class="stat-delta up"><i class="fas fa-check-circle"></i> Delivered</div>
+        </div>
+        <div class="stat-card" data-accent="orange">
+          <div class="stat-icon"><i class="fas fa-clock"></i></div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" id="st_pending">—</div>
+          <div class="stat-delta"><i class="fas fa-hourglass-half"></i> Awaiting send</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-row">
+        <!-- Bar chart: leads over days -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Lead Intake — Last 7 Days</div>
+              <div class="chart-sub">Daily submission count from Google Sheets</div>
+            </div>
+            <div class="live-indicator"><span class="live-dot"></span> Live data</div>
+          </div>
+          <div class="mini-chart" id="barChart"></div>
+          <div style="display:flex; gap:0.5rem; margin-top:0.75rem; flex-wrap:wrap;" id="barLabels"></div>
+        </div>
+
+        <!-- Donut: mode split -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Mode Split</div>
+              <div class="chart-sub">Online vs Offline</div>
+            </div>
+          </div>
+          <div class="donut-wrap" id="donutWrap">
+            <svg class="donut-svg" viewBox="0 0 120 120">
+              <circle class="donut-track" cx="60" cy="60" r="45"/>
+              <circle class="donut-seg" id="donutOnline" cx="60" cy="60" r="45" stroke="#38bdf8" transform="rotate(-90 60 60)" stroke-dasharray="0 283"/>
+              <circle class="donut-seg" id="donutOffline" cx="60" cy="60" r="45" stroke="#fbbf24" transform="rotate(-90 60 60)" stroke-dasharray="0 283"/>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div> <span>Online <strong id="donutOnlinePct">0%</strong></span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> <span>Offline <strong id="donutOfflinePct">0%</strong></span></div>
+              <div class="legend-item" style="margin-top:0.5rem;"><div class="legend-dot" style="background:#22c55e"></div> <span>Sent <strong id="donutSentPct">0%</strong></span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> <span>Pending <strong id="donutPendingPct">0%</strong></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="table-toolbar">
+        <div class="toolbar-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search name, email, phone, course…" oninput="renderTable()">
+        </div>
+
+        <div class="toolbar-filter">
+          <i class="fas fa-layer-group" style="color:var(--text3); font-size:0.75rem;"></i>
+          <select id="filterMode" onchange="renderTable()">
+            <option value="all">All Modes</option>
+            <option value="online">📱 Online</option>
+            <option value="offline">🏛️ Offline</option>
+          </select>
+        </div>
+
+        <div class="toolbar-filter">
+          <i class="fas fa-envelope" style="color:var(--text3); font-size:0.75rem;"></i>
+          <select id="filterStatus" onchange="renderTable()">
+            <option value="all">All Status</option>
+            <option value="SENT">✅ Sent</option>
+            <option value="PENDING">⏳ Pending</option>
+            <option value="FAILED">❌ Failed</option>
+          </select>
+        </div>
+
+        <div class="toolbar-filter">
+          <i class="fas fa-sort" style="color:var(--text3); font-size:0.75rem;"></i>
+          <select id="sortBy" onchange="renderTable()">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions">
+          <button class="tool-btn accent-green" onclick="fetchLeads()"><i class="fas fa-sync-alt"></i> <span>Sync</span></button>
+          <button class="tool-btn accent-yellow" onclick="exportToCsv()"><i class="fas fa-download"></i> <span>CSV</span></button>
+          <button class="tool-btn accent-red" onclick="openBulkModal()"><i class="fas fa-paper-plane"></i> <span>Bulk Send</span></button>
+        </div>
+      </div>
+
+      <!-- BULK BAR -->
+      <div class="bulk-bar" id="bulkBar">
+        <span><strong id="bulkCount">0</strong> leads selected</span>
+        <div class="bulk-actions">
+          <button class="tool-btn accent-red" onclick="openBulkModal(true)"><i class="fas fa-paper-plane"></i> Send Selected</button>
+          <button class="tool-btn" onclick="clearSelection()"><i class="fas fa-times"></i> Deselect All</button>
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th class="cell-check"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes(this)"></th>
+              <th class="sortable" onclick="setSortCol('name')">Name <span class="sort-icon" id="sort_name">⇅</span></th>
+              <th class="sortable" onclick="setSortCol('email')">Email <span class="sort-icon" id="sort_email">⇅</span></th>
+              <th>Phone</th>
+              <th>Mode</th>
+              <th>Course / Center</th>
+              <th>Batch Type</th>
+              <th class="sortable" onclick="setSortCol('timestamp')">Date <span class="sort-icon" id="sort_timestamp">⇅</span></th>
+              <th>Email Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="loading-row"><td colspan="10">
+              <div class="spinner-ring"></div>
+              <div style="color:var(--text3); font-size:0.82rem;">Fetching from Google Sheets…</div>
+            </td></tr>
+          </tbody>
+        </table>
+        <div class="pagination" id="paginationBar">
+          <span id="pageInfo" style="color:var(--text3)"></span>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══ MODAL: Email Compose ═══ -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i class="fas fa-paper-plane" style="color:var(--red); margin-right:0.5rem;"></i> Compose & Send Email</h3>
+      <button class="modal-close" onclick="closeModal('emailModal')">×</button>
     </div>
     <div class="modal-body">
-      <p style="margin-bottom: 0.75rem; font-size: 0.85rem;">Edit email content before sending:</p>
-      <textarea id="emailTemplate" rows="8" placeholder="Write your email content with placeholders: {name}, {mode}, {coupon}"></textarea>
-      <p style="margin-top: 0.5rem; font-size: 0.7rem; color: #64748b;"><i class="fas fa-info-circle"></i> Use {name}, {mode}, {coupon} for personalization</p>
+      <div class="field-group">
+        <label class="field-label">Recipient</label>
+        <input type="text" class="field-input mono" id="emailRecipient" readonly>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Quick Templates</label>
+        <div class="template-chips">
+          <button class="chip" onclick="setTemplate('online')">📱 Online Coupon</button>
+          <button class="chip" onclick="setTemplate('offline')">🏛️ Offline Form</button>
+          <button class="chip" onclick="setTemplate('followup')">🔔 Follow-Up</button>
+          <button class="chip" onclick="setTemplate('reminder')">⏰ Reminder</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Message Body <span style="color:var(--text3); font-size:0.65rem;">(Use {name}, {coupon}, {mode})</span></label>
+        <textarea class="field-input mono" id="emailBody" rows="7"></textarea>
+      </div>
     </div>
-    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-      <button class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
-      <button class="btn btn-primary" id="confirmSendBtn">Send Email</button>
+    <div class="modal-foot">
+      <button class="mfbtn" onclick="closeModal('emailModal')">Cancel</button>
+      <button class="mfbtn send" id="confirmSendBtn" onclick="confirmSend()"><i class="fas fa-paper-plane"></i> Send Email</button>
     </div>
   </div>
 </div>
 
+<!-- ═══ MODAL: Bulk Email ═══ -->
+<div class="modal-overlay" id="bulkModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i class="fas fa-envelope-open-text" style="color:var(--yellow); margin-right:0.5rem;"></i> Bulk Email Dispatch</h3>
+      <button class="modal-close" onclick="closeModal('bulkModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="bulkSummary" style="background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:1rem; font-size:0.82rem; color:var(--text2); line-height:1.9;"></div>
+      <div class="field-group">
+        <label class="field-label">Target Group</label>
+        <select class="field-input" id="bulkTarget">
+          <option value="selected">Selected leads only</option>
+          <option value="pending">All PENDING leads</option>
+          <option value="failed">All FAILED leads</option>
+          <option value="online">All ONLINE leads</option>
+          <option value="offline">All OFFLINE leads</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Quick Templates</label>
+        <div class="template-chips">
+          <button class="chip" onclick="setTemplate('online', 'bulk')">📱 Online Coupon</button>
+          <button class="chip" onclick="setTemplate('offline', 'bulk')">🏛️ Offline Form</button>
+          <button class="chip" onclick="setTemplate('followup', 'bulk')">🔔 Follow-Up</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Bulk Message</label>
+        <textarea class="field-input mono" id="bulkEmailBody" rows="5"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="mfbtn" onclick="closeModal('bulkModal')">Cancel</button>
+      <button class="mfbtn send" onclick="sendBulkEmails()"><i class="fas fa-paper-plane"></i> Send to All Targets</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Lead Detail ═══ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i class="fas fa-id-card" style="color:var(--blue); margin-right:0.5rem;"></i> Lead Details</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-foot">
+      <button class="mfbtn" onclick="closeModal('detailModal')">Close</button>
+      <button class="mfbtn send" id="detailResendBtn"><i class="fas fa-paper-plane"></i> Send Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-  // Configuration
+  // ─── CONFIG ───────────────────────────────────────────────
   const API_BASE = 'https://script.google.com/macros/s/AKfycbwyV6rSHkkqaE502u97qqBumrMT0PkbfARtvVqDTiGuwdGTSAUs63tySTViM1xOG31x/exec';
-  
+  const COUPON_ONLINE = '9711NDME';
+  const OFFLINE_FORM  = 'https://forms.gle/8q1a8tS6saGSgvXy9';
+  const PAGE_SIZE = 15;
+
+  // ─── STATE ────────────────────────────────────────────────
   let allLeads = [];
-  let selectedLeadForResend = null;
-  let selectedLeadsForBulk = [];
+  let filteredLeads = [];
+  let selectedEmails = new Set();
+  let currentPage = 1;
+  let currentResend = null;
+  let sortCol = 'timestamp';
+  let sortDir = 'desc';
 
-  // Helper: Show Toast
-  function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+  // ─── TOAST ────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warn: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fas ${icons[type] || icons.success}" style="flex-shrink:0;"></i> ${msg}`;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(40px)'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 3200);
   }
 
-  // Fetch Leads
-  async function fetchLeads(filter = 'all') {
-    const loadingDiv = document.getElementById('loadingState');
-    const table = document.getElementById('leadsTable');
-    const emptyDiv = document.getElementById('emptyState');
-    
-    loadingDiv.style.display = 'block';
-    table.style.display = 'none';
-    emptyDiv.style.display = 'none';
-    
+  // ─── COPY COUPON ──────────────────────────────────────────
+  function copyCoupon() {
+    navigator.clipboard?.writeText(COUPON_ONLINE).then(() => toast('Coupon code copied!', 'info'));
+  }
+
+  // ─── FETCH ────────────────────────────────────────────────
+  async function fetchLeads() {
+    document.getElementById('syncLabel').textContent = 'Syncing with Google Sheets…';
+    document.getElementById('tableBody').innerHTML = `<tr class="loading-row"><td colspan="10"><div class="spinner-ring"></div><div style="color:var(--text3);font-size:0.82rem;">Fetching from Google Sheets…</div></td></tr>`;
+
     try {
-      let url = `${API_BASE}?mode=${filter}`;
-      const response = await fetch(url);
-      const leads = await response.json();
-      
-      allLeads = Array.isArray(leads) ? leads : [];
-      
-      renderStats(allLeads);
-      renderTable(allLeads);
-      
-      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-sync-alt"></i> Last sync: ${new Date().toLocaleString()}`;
-      
-      loadingDiv.style.display = 'none';
-      if (allLeads.length === 0) {
-        emptyDiv.style.display = 'block';
-      } else {
-        table.style.display = 'table';
+      const res = await fetch(`${API_BASE}?mode=all&t=${Date.now()}`);
+      const data = await res.json();
+      allLeads = Array.isArray(data) ? data : [];
+      document.getElementById('syncLabel').textContent = `Last synced: ${new Date().toLocaleTimeString()}`;
+      computeStats();
+      computeCharts();
+      renderTable();
+      toast(`Loaded ${allLeads.length} leads`, 'success');
+    } catch (e) {
+      document.getElementById('syncLabel').textContent = 'Sync failed — check connection';
+      document.getElementById('tableBody').innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><h3>Could not reach Google Sheets</h3><p>Check your AppScript URL or network connection</p></div></td></tr>`;
+      toast('Failed to fetch: ' + e.message, 'error');
+    }
+  }
+
+  // ─── FIELD HELPERS ────────────────────────────────────────
+  const f = (lead, ...keys) => { for (const k of keys) { if (lead[k]) return lead[k]; } return ''; };
+  const getName   = l => f(l, 'Full Name', 'name');
+  const getEmail  = l => f(l, 'Email', 'email');
+  const getPhone  = l => f(l, 'Phone', 'phone');
+  const getMode   = l => (f(l, 'Mode (Online/Offline)', 'mode') || '').toLowerCase();
+  const getCourse = l => f(l, 'Course/Target', 'course', 'Center Preference', 'center');
+  const getBType  = l => f(l, 'Batch Type', 'batchType');
+  const getParent = l => f(l, 'Parent Mobile', 'parentMobile');
+  const getStatus = l => (f(l, 'Email Sent', 'emailSent') || 'PENDING').toUpperCase();
+  const getTS     = l => f(l, 'Timestamp', 'timestamp');
+
+  // ─── STATS ────────────────────────────────────────────────
+  function computeStats() {
+    const total   = allLeads.length;
+    const online  = allLeads.filter(l => getMode(l) === 'online').length;
+    const offline = total - online;
+    const sent    = allLeads.filter(l => getStatus(l) === 'SENT').length;
+    const pending = allLeads.filter(l => getStatus(l) === 'PENDING').length;
+
+    animateNum('st_total', total);
+    animateNum('st_online', online);
+    animateNum('st_offline', offline);
+    animateNum('st_sent', sent);
+    animateNum('st_pending', pending);
+    document.getElementById('sidebarTotal').textContent = total;
+  }
+
+  function animateNum(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let start = 0; const dur = 800;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      el.textContent = Math.floor(p * target);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ─── CHARTS ───────────────────────────────────────────────
+  function computeCharts() {
+    // Bar chart: last 7 days
+    const now = new Date();
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(now); d.setDate(d.getDate() - (6 - i));
+      return { label: d.toLocaleDateString('en', { weekday: 'short' }), date: d.toDateString(), count: 0 };
+    });
+
+    allLeads.forEach(l => {
+      const ts = getTS(l);
+      if (!ts) return;
+      const d = new Date(ts);
+      days.forEach(day => { if (d.toDateString() === day.date) day.count++; });
+    });
+
+    const maxCount = Math.max(...days.map(d => d.count), 1);
+    const barChart = document.getElementById('barChart');
+    const barLabels = document.getElementById('barLabels');
+    barChart.innerHTML = '';
+    barLabels.innerHTML = '';
+
+    days.forEach(day => {
+      const heightPct = Math.max((day.count / maxCount) * 100, 4);
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.cssText = `height:0; background:linear-gradient(180deg, var(--red), var(--orange)); opacity:${day.count > 0 ? 1 : 0.25};`;
+      bar.dataset.val = day.count;
+      barChart.appendChild(bar);
+      setTimeout(() => { bar.style.height = heightPct + '%'; }, 100);
+
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'flex:1; text-align:center; font-size:0.65rem; color:var(--text3);';
+      lbl.textContent = day.label;
+      barLabels.appendChild(lbl);
+    });
+
+    // Donut
+    const total   = allLeads.length || 1;
+    const online  = allLeads.filter(l => getMode(l) === 'online').length;
+    const offline = total - online;
+    const sent    = allLeads.filter(l => getStatus(l) === 'SENT').length;
+    const pending = allLeads.filter(l => getStatus(l) === 'PENDING').length;
+    const circ    = 2 * Math.PI * 45; // ~283
+
+    const onlineFrac  = online / total;
+    const offlineFrac = offline / total;
+
+    document.getElementById('donutOnline').setAttribute('stroke-dasharray', `${onlineFrac * circ} ${circ}`);
+    const offOffset = (1 - onlineFrac) * circ;
+    document.getElementById('donutOffline').setAttribute('stroke-dasharray', `${offlineFrac * circ} ${circ}`);
+    document.getElementById('donutOffline').style.strokeDashoffset = -onlineFrac * circ;
+
+    document.getElementById('donutOnlinePct').textContent  = Math.round(onlineFrac * 100) + '%';
+    document.getElementById('donutOfflinePct').textContent = Math.round(offlineFrac * 100) + '%';
+    document.getElementById('donutSentPct').textContent    = Math.round((sent / total) * 100) + '%';
+    document.getElementById('donutPendingPct').textContent = Math.round((pending / total) * 100) + '%';
+  }
+
+  // ─── RENDER TABLE ─────────────────────────────────────────
+  function renderTable() {
+    const search   = document.getElementById('searchInput').value.toLowerCase();
+    const modeF    = document.getElementById('filterMode').value;
+    const statusF  = document.getElementById('filterStatus').value;
+    const sortBy   = document.getElementById('sortBy').value;
+
+    filteredLeads = allLeads.filter(l => {
+      if (modeF !== 'all' && getMode(l) !== modeF) return false;
+      if (statusF !== 'all' && getStatus(l) !== statusF) return false;
+      if (search) {
+        const hay = [getName(l), getEmail(l), getPhone(l), getCourse(l)].join(' ').toLowerCase();
+        if (!hay.includes(search)) return false;
       }
-    } catch (error) {
-      console.error('Error fetching leads:', error);
-      loadingDiv.style.display = 'none';
-      emptyDiv.style.display = 'block';
-      showToast('Failed to fetch leads: ' + error.message, 'error');
-    }
+      return true;
+    });
+
+    // Sort
+    filteredLeads.sort((a, b) => {
+      if (sortBy === 'name') return getName(a).localeCompare(getName(b));
+      if (sortBy === 'oldest') return new Date(getTS(a)) - new Date(getTS(b));
+      return new Date(getTS(b)) - new Date(getTS(a)); // newest default
+    });
+
+    if (sortDir === 'asc') filteredLeads.reverse();
+
+    currentPage = 1;
+    renderPage();
   }
 
-  // Render Stats
-  function renderStats(leads) {
-    const total = leads.length;
-    const onlineCount = leads.filter(l => (l["Mode (Online/Offline)"] || l["mode"]) === 'online').length;
-    const offlineCount = total - onlineCount;
-    const emailedCount = leads.filter(l => (l["Email Sent"] || l["emailSent"]) === 'SENT').length;
-    
-    document.getElementById('totalLeads').innerHTML = total;
-    document.getElementById('onlineCount').innerHTML = onlineCount;
-    document.getElementById('offlineCount').innerHTML = offlineCount;
-    document.getElementById('emailedCount').innerHTML = emailedCount;
-  }
+  function renderPage() {
+    const tbody = document.getElementById('tableBody');
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const slice = filteredLeads.slice(start, start + PAGE_SIZE);
 
-  // Render Table
-  function renderTable(leads) {
-    const tbody = document.getElementById('leadRows');
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    let filteredLeads = leads;
-    if (searchTerm) {
-      filteredLeads = leads.filter(lead => 
-        (lead["Full Name"] || lead["name"] || '').toLowerCase().includes(searchTerm) ||
-        (lead["Email"] || lead["email"] || '').toLowerCase().includes(searchTerm) ||
-        (lead["Phone"] || lead["phone"] || '').includes(searchTerm)
-      );
-    }
-    
-    if (filteredLeads.length === 0 && leads.length > 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 3rem; color: #64748b;">No matching leads found</td></tr>';
+    if (filteredLeads.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><h3>No leads found</h3><p>Try adjusting filters or refresh data</p></div></td></tr>`;
+      document.getElementById('pageInfo').textContent = '';
+      document.getElementById('pageBtns').innerHTML = '';
       return;
     }
-    
-    tbody.innerHTML = '';
-    
-    filteredLeads.forEach((lead, index) => {
-      const row = tbody.insertRow();
-      const name = lead["Full Name"] || lead["name"] || '-';
-      const email = lead["Email"] || lead["email"] || '-';
-      const phone = lead["Phone"] || lead["phone"] || '-';
-      const mode = lead["Mode (Online/Offline)"] || lead["mode"] || '-';
-      const courseCenter = lead["Course/Target"] || lead["Center Preference"] || lead["course"] || '—';
-      const timestamp = lead["Timestamp"] || lead["timestamp"] || new Date().toLocaleString();
-      const emailStatus = lead["Email Sent"] || lead["emailSent"] || 'PENDING';
-      
-      let statusClass = 'status-pending';
-      let statusIcon = '⏳';
-      if (emailStatus === 'SENT') {
-        statusClass = 'status-sent';
-        statusIcon = '✓';
-      } else if (emailStatus === 'FAILED') {
-        statusClass = 'status-failed';
-        statusIcon = '✗';
-      }
-      
-      row.innerHTML = `
-        <td style="text-align: center;"><input type="checkbox" class="lead-checkbox" data-email="${email}" data-name="${name}" data-mode="${mode}"></td>
-        <td><strong>${escapeHtml(name)}</strong></td>
-        <td style="color: #86efac;">${escapeHtml(email)}</td>
-        <td>${escapeHtml(phone)}</td>
-        <td><span class="status-badge ${mode === 'online' ? 'status-sent' : 'status-pending'}">${mode === 'online' ? '📱 Online' : '🏛️ Offline'}</span></td>
-        <td>${escapeHtml(courseCenter)}</td>
-        <td style="font-size: 0.7rem;">${escapeHtml(timestamp)}</td>
-        <td><span class="status-badge ${statusClass}">${statusIcon} ${emailStatus}</span></td>
-        <td>
-          <button class="action-btn action-resend" onclick="openEmailModalForLead('${escapeHtml(email)}', '${escapeHtml(name)}', '${mode}')" title="Resend Email">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-          <button class="action-btn action-view" onclick="viewLeadDetails('${escapeHtml(name)}', '${escapeHtml(email)}', '${escapeHtml(phone)}', '${mode}', '${escapeHtml(courseCenter)}', '${emailStatus}')" title="View Details">
-            <i class="fas fa-eye"></i>
-          </button>
-        </td>
-      `;
-    });
-    
-    // Attach checkbox listeners
-    document.querySelectorAll('.lead-checkbox').forEach(cb => {
-      cb.addEventListener('change', updateBulkSelection);
-    });
+
+    tbody.innerHTML = slice.map((lead, i) => {
+      const email = getEmail(lead);
+      const mode  = getMode(lead);
+      const status = getStatus(lead);
+      const ts = getTS(lead) ? new Date(getTS(lead)).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+      const course = getCourse(lead) || '—';
+      const btype  = getBType(lead) || (mode === 'offline' ? 'Vidyapeeth' : '—');
+      const checked = selectedEmails.has(email) ? 'checked' : '';
+
+      const statusBadge = status === 'SENT'
+        ? `<span class="badge badge-sent">✓ Sent</span>`
+        : status === 'FAILED'
+        ? `<span class="badge badge-failed">✗ Failed</span>`
+        : `<span class="badge badge-pending">⏳ Pending</span>`;
+
+      const modeBadge = mode === 'online'
+        ? `<span class="badge badge-online">📱 Online</span>`
+        : `<span class="badge badge-offline">🏛️ Offline</span>`;
+
+      return `
+        <tr class="${checked ? 'selected' : ''}" data-email="${esc(email)}">
+          <td class="cell-check"><input type="checkbox" class="row-cb" data-email="${esc(email)}" ${checked} onchange="toggleRow(this)"></td>
+          <td class="cell-name"><strong>${esc(getName(lead))}</strong><span>${esc(getPhone(lead))}</span></td>
+          <td class="cell-email">${esc(email)}</td>
+          <td class="cell-phone">${esc(getPhone(lead))}</td>
+          <td>${modeBadge}</td>
+          <td class="cell-course" title="${esc(course)}">${esc(course)}</td>
+          <td class="cell-btype">${esc(btype)}</td>
+          <td class="cell-ts">${ts}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-btn send" title="Send Email" onclick="openEmailModal('${esc(email)}', '${esc(getName(lead))}', '${mode}')"><i class="fas fa-paper-plane"></i></button>
+              <button class="row-btn view" title="View Details" onclick="openDetailModal(${start + i})"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    renderPagination();
+    document.getElementById('pageInfo').textContent = `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, filteredLeads.length)} of ${filteredLeads.length} leads`;
+    updateBulkBar();
   }
-  
-  function updateBulkSelection() {
-    const checkboxes = document.querySelectorAll('.lead-checkbox:checked');
-    selectedLeadsForBulk = Array.from(checkboxes).map(cb => ({
-      email: cb.getAttribute('data-email'),
-      name: cb.getAttribute('data-name'),
-      mode: cb.getAttribute('data-mode')
-    }));
-  }
-  
-  document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
-    document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = e.target.checked);
-    updateBulkSelection();
-  });
-  
-  function escapeHtml(str) {
-    if (!str) return '-';
-    return String(str).replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-  
-  // Modal Handling
-  let currentResendData = null;
-  
-  window.openEmailModalForLead = function(email, name, mode) {
-    currentResendData = { email, name, mode, isBulk: false };
-    const defaultTemplate = mode === 'online' 
-      ? `Hi {name},\n\n🎯 Your PW Discount Coupon: 9711NDME\n💸 Get up to ₹5000 OFF on any online batch!\n\nUse new mobile number for maximum discount.\n\nBest,\nYugal (PW Ambassador)`
-      : `Hi {name},\n\nThank you for your interest in PW Offline/Vidyapeeth batch.\n\n👉 Please fill this form for exclusive discount: https://forms.gle/8q1a8tS6saGSgvXy9\n\nOur team will contact you soon.\n\nRegards,\nYugal`;
-    
-    document.getElementById('emailTemplate').value = defaultTemplate;
-    document.getElementById('emailModal').style.display = 'flex';
-  };
-  
-  window.closeEmailModal = function() {
-    document.getElementById('emailModal').style.display = 'none';
-    currentResendData = null;
-  };
-  
-  document.getElementById('confirmSendBtn').addEventListener('click', async () => {
-    if (!currentResendData) return;
-    
-    const customMessage = document.getElementById('emailTemplate').value;
-    const payload = {
-      action: "RESEND_EMAIL",
-      email: currentResendData.email,
-      name: currentResendData.name,
-      mode: currentResendData.mode,
-      customMessage: customMessage
+
+  function renderPagination() {
+    const total = Math.ceil(filteredLeads.length / PAGE_SIZE);
+    const el = document.getElementById('pageBtns');
+    el.innerHTML = '';
+    if (total <= 1) return;
+
+    const addBtn = (label, page, active) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.innerHTML = label;
+      b.onclick = () => { currentPage = page; renderPage(); };
+      el.appendChild(b);
     };
-    
+
+    if (currentPage > 1) addBtn('<i class="fas fa-chevron-left"></i>', currentPage - 1, false);
+    for (let i = Math.max(1, currentPage - 2); i <= Math.min(total, currentPage + 2); i++) addBtn(i, i, i === currentPage);
+    if (currentPage < total) addBtn('<i class="fas fa-chevron-right"></i>', currentPage + 1, false);
+  }
+
+  // ─── SELECTION ────────────────────────────────────────────
+  function toggleRow(cb) {
+    const email = cb.dataset.email;
+    if (cb.checked) selectedEmails.add(email);
+    else selectedEmails.delete(email);
+    cb.closest('tr').classList.toggle('selected', cb.checked);
+    updateBulkBar();
+  }
+
+  function toggleAllCheckboxes(masterCb) {
+    document.querySelectorAll('.row-cb').forEach(cb => {
+      cb.checked = masterCb.checked;
+      const email = cb.dataset.email;
+      if (masterCb.checked) selectedEmails.add(email);
+      else selectedEmails.delete(email);
+      cb.closest('tr').classList.toggle('selected', masterCb.checked);
+    });
+    updateBulkBar();
+  }
+
+  function clearSelection() {
+    selectedEmails.clear();
+    document.querySelectorAll('.row-cb, #checkAll').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.leads-table tbody tr').forEach(tr => tr.classList.remove('selected'));
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulkBar');
+    const count = selectedEmails.size;
+    document.getElementById('bulkCount').textContent = count;
+    bar.classList.toggle('visible', count > 0);
+  }
+
+  function setSortCol(col) {
+    if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else { sortCol = col; sortDir = 'desc'; }
+    ['name','email','timestamp'].forEach(c => {
+      const el = document.getElementById('sort_' + c);
+      if (!el) return;
+      el.textContent = c === sortCol ? (sortDir === 'asc' ? '↑' : '↓') : '⇅';
+      el.classList.toggle('active', c === sortCol);
+    });
+    renderTable();
+  }
+
+  // ─── ESCAPE HTML ──────────────────────────────────────────
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  }
+
+  // ─── MODALS ───────────────────────────────────────────────
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // Email single
+  function openEmailModal(email, name, mode) {
+    currentResend = { email, name, mode };
+    document.getElementById('emailRecipient').value = `${name} <${email}>`;
+    setTemplate(mode === 'online' ? 'online' : 'offline');
+    openModal('emailModal');
+  }
+
+  // Detail modal
+  function openDetailModal(idx) {
+    const lead = filteredLeads[idx];
+    if (!lead) return;
+    const rows = [
+      ['Full Name', getName(lead)], ['Email', getEmail(lead)],
+      ['Phone', getPhone(lead)], ['Mode', getMode(lead)],
+      ['Course / Center', getCourse(lead)], ['Batch Type', getBType(lead)],
+      ['Parent Mobile', getParent(lead)], ['Email Status', getStatus(lead)],
+      ['Submitted At', getTS(lead)]
+    ].filter(r => r[1]);
+
+    document.getElementById('detailBody').innerHTML = `
+      <div class="lead-detail-grid">
+        ${rows.map(([k, v]) => `
+          <div class="detail-cell">
+            <div class="detail-cell-label">${esc(k)}</div>
+            <div class="detail-cell-value ${['Email','Phone','Parent Mobile'].includes(k) ? 'mono' : ''}">${esc(v)}</div>
+          </div>`).join('')}
+      </div>`;
+
+    document.getElementById('detailResendBtn').onclick = () => {
+      closeModal('detailModal');
+      openEmailModal(getEmail(lead), getName(lead), getMode(lead));
+    };
+    openModal('detailModal');
+  }
+
+  // Bulk modal
+  function openBulkModal(useSelected = false) {
+    const sel = selectedEmails.size;
+    const total = allLeads.length;
+    const pending = allLeads.filter(l => getStatus(l) === 'PENDING').length;
+    document.getElementById('bulkSummary').innerHTML =
+      `📊 <strong>${total}</strong> total leads · <strong>${sel}</strong> selected · <strong>${pending}</strong> pending<br>
+       Choose a target group below and compose your message.`;
+    if (useSelected && sel > 0) document.getElementById('bulkTarget').value = 'selected';
+    setTemplate('online', 'bulk');
+    openModal('bulkModal');
+  }
+
+  // ─── TEMPLATES ────────────────────────────────────────────
+  const TEMPLATES = {
+    online: `Hi {name},\n\n🎯 Your exclusive PW discount is ready!\n\n💸 Coupon Code: ${COUPON_ONLINE}\n✅ Get up to ₹5,000 OFF on any online batch!\n\n📌 How to use:\n1. Go to pw.live and select your batch\n2. Enter the coupon at checkout\n3. Use a new mobile number for maximum discount\n\nFor any queries, reply to this email.\n\nBest regards,\nYugal · PW Ambassador`,
+
+    offline: `Hi {name},\n\nThank you for your interest in PW Offline / Vidyapeeth batches! 🏛️\n\n👉 Please fill this quick form to unlock your exclusive discount:\n${OFFLINE_FORM}\n\nOur counseling team will reach out within 24 hours with batch details and fee structure.\n\nRegards,\nYugal · PW Ambassador`,
+
+    followup: `Hi {name},\n\nThis is a follow-up on your PW batch inquiry. 😊\n\nHave you checked out the batch yet? Your discount coupon is still active!\n🎟️ Online: Use code ${COUPON_ONLINE} at pw.live\n🏛️ Offline: Fill ${OFFLINE_FORM}\n\nFeel free to reply if you have any questions.\n\nYugal · PW Ambassador`,
+
+    reminder: `Hi {name},\n\n⏰ Quick reminder — your PW discount offer expires soon!\n\nDon't miss out on saving up to ₹5,000 on your preparation batch.\n✅ Coupon: ${COUPON_ONLINE} (online)\n✅ Offline form: ${OFFLINE_FORM}\n\nBest of luck with your preparation!\nYugal`
+  };
+
+  function setTemplate(type, target = 'single') {
+    const bodyId = target === 'bulk' ? 'bulkEmailBody' : 'emailBody';
+    document.getElementById(bodyId).value = TEMPLATES[type] || TEMPLATES.online;
+  }
+
+  // ─── SEND SINGLE ──────────────────────────────────────────
+  async function confirmSend() {
+    if (!currentResend) return;
+    const body = document.getElementById('emailBody').value
+      .replace(/\{name\}/g, currentResend.name)
+      .replace(/\{coupon\}/g, COUPON_ONLINE)
+      .replace(/\{mode\}/g, currentResend.mode);
+
+    const btn = document.getElementById('confirmSendBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; btn.disabled = true;
+
     try {
       await fetch(API_BASE, {
-        method: 'POST',
-        mode: 'no-cors',
+        method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ action: 'RESEND_EMAIL', email: currentResend.email, name: currentResend.name, mode: currentResend.mode, customMessage: body })
       });
-      showToast(`✅ Email sent to ${currentResendData.email}`, 'success');
-      closeEmailModal();
-    } catch (error) {
-      showToast('Failed to send email', 'error');
+      toast(`✅ Email sent to ${currentResend.email}`, 'success');
+      closeModal('emailModal');
+    } catch (e) {
+      toast('Failed to send: ' + e.message, 'error');
     }
-  });
-  
-  document.getElementById('bulkResendBtn').addEventListener('click', () => {
-    if (selectedLeadsForBulk.length === 0) {
-      showToast('Please select at least one lead', 'error');
-      return;
-    }
-    if (confirm(`Send emails to ${selectedLeadsForBulk.length} selected leads?`)) {
-      selectedLeadsForBulk.forEach(async (lead) => {
-        const payload = {
-          action: "RESEND_EMAIL",
-          email: lead.email,
-          name: lead.name,
-          mode: lead.mode,
-          customMessage: `Hi ${lead.name},\n\nYour PW discount is ready! ${lead.mode === 'online' ? 'Use code: 9711NDME for ₹5000 OFF' : 'Fill the offline form for special discount: https://forms.gle/8q1a8tS6saGSgvXy9'}\n\n- Yugal`
-        };
-        await fetch(API_BASE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-      });
-      showToast(`📧 Bulk email sending initiated for ${selectedLeadsForBulk.length} leads`, 'success');
-    }
-  });
-  
-  window.viewLeadDetails = function(name, email, phone, mode, courseCenter, status) {
-    alert(`📋 Lead Details\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMode: ${mode}\nCourse/Center: ${courseCenter}\nStatus: ${status}`);
-  };
-  
-  // Export to CSV
-  function exportToCsv() {
-    const headers = ['Full Name', 'Email', 'Phone', 'Mode', 'Course/Center', 'Email Status', 'Timestamp'];
-    const rows = allLeads.map(lead => [
-      lead["Full Name"] || lead["name"] || '',
-      lead["Email"] || lead["email"] || '',
-      lead["Phone"] || lead["phone"] || '',
-      lead["Mode (Online/Offline)"] || lead["mode"] || '',
-      lead["Course/Target"] || lead["Center Preference"] || lead["course"] || '',
-      lead["Email Sent"] || lead["emailSent"] || 'PENDING',
-      lead["Timestamp"] || lead["timestamp"] || ''
-    ]);
-    
-    const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', `pw_leads_${new Date().toISOString().slice(0,19)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showToast('CSV exported successfully', 'success');
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email'; btn.disabled = false;
+    currentResend = null;
   }
-  
-  // Event Listeners
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    const filter = document.getElementById('filterMode').value;
-    fetchLeads(filter);
+
+  // ─── SEND BULK ────────────────────────────────────────────
+  async function sendBulkEmails() {
+    const targetVal = document.getElementById('bulkTarget').value;
+    const msgTpl    = document.getElementById('bulkEmailBody').value;
+
+    let targets = [];
+    if (targetVal === 'selected')  targets = allLeads.filter(l => selectedEmails.has(getEmail(l)));
+    else if (targetVal === 'pending') targets = allLeads.filter(l => getStatus(l) === 'PENDING');
+    else if (targetVal === 'failed')  targets = allLeads.filter(l => getStatus(l) === 'FAILED');
+    else if (targetVal === 'online')  targets = allLeads.filter(l => getMode(l) === 'online');
+    else if (targetVal === 'offline') targets = allLeads.filter(l => getMode(l) === 'offline');
+
+    if (targets.length === 0) { toast('No leads match the selected target group', 'warn'); return; }
+    if (!confirm(`Send email to ${targets.length} leads?`)) return;
+
+    closeModal('bulkModal');
+    toast(`📧 Dispatching ${targets.length} emails…`, 'info');
+
+    let sent = 0;
+    for (const lead of targets) {
+      const body = msgTpl.replace(/\{name\}/g, getName(lead)).replace(/\{coupon\}/g, COUPON_ONLINE).replace(/\{mode\}/g, getMode(lead));
+      try {
+        await fetch(API_BASE, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'RESEND_EMAIL', email: getEmail(lead), name: getName(lead), mode: getMode(lead), customMessage: body })
+        });
+        sent++;
+      } catch { /* continue */ }
+      await new Promise(r => setTimeout(r, 120)); // throttle
+    }
+
+    toast(`✅ Bulk send complete: ${sent}/${targets.length} emails dispatched`, 'success');
+    clearSelection();
+  }
+
+  // ─── EXPORT CSV ───────────────────────────────────────────
+  function exportToCsv() {
+    if (allLeads.length === 0) { toast('No data to export', 'warn'); return; }
+    const headers = ['Full Name', 'Email', 'Phone', 'Mode', 'Course/Center', 'Batch Type', 'Parent Mobile', 'Email Status', 'Timestamp'];
+    const rows = allLeads.map(l => [
+      getName(l), getEmail(l), getPhone(l), getMode(l),
+      getCourse(l), getBType(l), getParent(l), getStatus(l), getTS(l)
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `pw_leads_${new Date().toISOString().slice(0,19).replace(/[T:]/g, '-')}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast(`Exported ${allLeads.length} leads to CSV`, 'success');
+  }
+
+  // ─── CLOSE OVERLAY ON CLICK OUTSIDE ──────────────────────
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
   });
-  
-  document.getElementById('exportCsvBtn').addEventListener('click', exportToCsv);
-  
-  document.getElementById('filterMode').addEventListener('change', (e) => {
-    fetchLeads(e.target.value);
-  });
-  
-  document.getElementById('searchInput').addEventListener('input', () => {
-    renderTable(allLeads);
-  });
-  
-  // Initial Load
-  fetchLeads('all');
+
+  // ─── INIT ─────────────────────────────────────────────────
+  fetchLeads();
+  setInterval(fetchLeads, 90000); // auto-refresh every 90s
 </script>
 </body>
 </html>
